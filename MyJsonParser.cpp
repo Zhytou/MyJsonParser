@@ -3,10 +3,22 @@
 
 #include "MyJsonParser.h"
 
-using namespace std;
-
-int main()
+namespace AtomJson
 {
-	cout << "Hello CMake." << endl;
-	return 0;
-}
+	class Json
+	{
+	public:
+		typedef enum
+		{
+			JNULL,
+			BOOL,
+			NUMBER,
+			OBJECT,
+			ARRAY,
+		} ValueType;
+		Json() = default;
+		void parse(const char *s);
+
+	private:
+	};
+};
