@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required(VERSION 3.14)
 
-project ("MyJsonParser - AtomJson C Version")
+project ("MyJsonParser - AtomJson")
 
 set(CMAKE_CXX_STANDARD 11)
 
@@ -14,5 +14,8 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 add_library(atomjson atomjson.cpp)
-add_executable(atom_test test.cpp)
-target_link_libraries(atomjson_test atomjson)
+add_executable(test test.cpp)
+target_link_libraries(test gtest_main atomjson pthread)
+
+include(GoogleTest)
+gtest_discover_tests(test)

@@ -1,32 +1,23 @@
 ﻿#pragma once
 #ifndef ATOMJSON_H
 #define ATOMJSON_H
-
+#include <iostream>
+#include <assert.h>
 namespace AtomJson
 {
     namespace AtomJsonType
     {
         enum Type
         {
-            NULL,
+            _NULL,
             BOOLEN,
             NUMBER,
             STRING,
             ARRAY,
             OBJECT
         };
-        struct Value
-        {
-            union
-            {
-                Boolen b;
-                Number n;
-                String s;
-                // Array *a;
-                // Object *o;
-            } val;
-            Type type;
-        };
+
+        typedef bool Null;
 
         typedef bool Boolen;
 
@@ -51,11 +42,37 @@ namespace AtomJson
                         s[i] = other[i];
                 }
             }
-            // String(String &other) = delete;
+            String(String &other) = delete;
+
+            ~String()
+            {
+                delete s;
+                size = 0;
+                capacity = 0;
+            }
 
         private:
             char *s;
             size_t size, capacity;
+        };
+
+        struct Value
+        {
+            union RealValue
+            {
+                Boolen b;
+                Number n;
+                String s;
+                // Array *a;
+                // Object *o;
+
+                RealValue(){};
+                ~RealValue() {}
+            } val;
+            Type type;
+
+            Value() : type(_NULL){};
+            ~Value(){};
         };
 
         class Array
@@ -76,15 +93,16 @@ namespace AtomJson
                 Pair() = default;
             };
 
-            Object() : capacity(1)
+            Object()
             {
-                pairs = new Pair[capacity];
+                capacity = 1;
+                // pairs = new Pair[capacity];
             }
             Object(size_t s)
             {
                 size = s;
                 capacity = 1.5 * size;
-                pairs = new Pair[capacity];
+                // pairs = new Pair;
             }
             Value &operator[](char *key);
 
@@ -94,8 +112,7 @@ namespace AtomJson
         };
 
     };
-
-    class Json
+    class Json : private AtomJsonType::Value
     {
     public:
         enum ParseRes
@@ -122,88 +139,25 @@ namespace AtomJson
         [ ➔ array
         { ➔ object
         */
-        ParseRes parse(const char *jsonstr)
-        {
-            ParseContext c(jsonstr);
-            v.type = AtomJsonType::Type::NULL;
-            ParseRes ret;
-            if ((ret = parse(&c)) == ParseRes::PARSE_OK)
-            {
-                parse_whitespace(&c);
-                if (*c.json != '\0')
-                    ret = ParseRes::PARSE_ROOT_NOT_SINGULAR;
-            }
-            return ret;
-        };
-        void stringify();
+        ParseRes parse(const char *jsonstr);
+        Json() : AtomJsonType::Value(){};
+        // void stringify();
+        bool isEmpty() { return type == AtomJsonType::Type::_NULL; }
+        bool isBoolen() { return type == AtomJsonType::Type::BOOLEN; }
+        bool isNumber() { return type == AtomJsonType::Type::NUMBER; }
 
     private:
-        ParseRes parse(ParseContext *c)
-        {
-            switch (*c->json)
-            {
-            case 'n':
-                return parse_null(c);
-            case 't':
-            case 'f':
-                return parse_boolen(c);
+        ParseRes parse(ParseContext *c);
 
-            case '\"':
-                return parse_string(c);
+        ParseRes parse_whitespace(ParseContext *c);
 
-            case '\0':
-                return PARSE_EXPECT_VALUE;
-            default:
-                return PARSE_INVALID_VALUE;
-            };
-        }
+        ParseRes parse_null(ParseContext *c);
 
-        ParseRes parse_whitespace(ParseContext *c)
-        {
-            const char *p = c->json;
-            while (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r')
-                p++;
-            c->json = p;
-        }
+        ParseRes parse_boolen(ParseContext *c);
 
-        ParseRes parse_null(ParseContext *c)
-        {
-            if (c->json[0] != 'n' || c->json[1] != 'u' || c->json[2] != 'l' || c->json[3] != 'l')
-                return ParseRes::PARSE_INVALID_VALUE;
-            c->json += 4;
-            v.type = AtomJsonType::NULL;
-            return ParseRes::PARSE_OK;
-        }
+        ParseRes parse_number(ParseContext *c);
 
-        ParseRes parse_boolen(ParseContext *c)
-        {
-            if (c->json[0] == 't')
-            {
-                if (c->json[1] != 'r' || c->json[2] != 'u' || c->json[3] != 'e')
-                    return ParseRes::PARSE_INVALID_VALUE;
-                c->json += 4;
-                v.type = AtomJsonType::BOOLEN;
-                v.val.b = true;
-            }
-            else if (c->json[0] == 'f')
-            {
-                if (c->json[1] != 'a' || c->json[2] != 'l' || c->json[3] != 's' || c->json[4] != 'e')
-                    return ParseRes::PARSE_INVALID_VALUE;
-                c->json += 5;
-                return ParseRes::PARSE_INVALID_VALUE;
-                v.type = AtomJsonType::BOOLEN;
-                v.val.b = false;
-            }
-            else
-                return ParseRes::PARSE_INVALID_VALUE;
-            return ParseRes::PARSE_OK;
-        }
-
-        ParseRes parse_string(ParseContext *c)
-        {
-        }
-
-        AtomJsonType::Value v;
+        ParseRes parse_string(ParseContext *c);
     };
 
 } // namespace AtomJson
