@@ -79,6 +79,58 @@ namespace AtomJson
 
     Json::ParseRes Json::parse_string(ParseContext *c)
     {
+        const char *p = c->json;
+        p += 1;
+        AtomJsonType::String s;
+        while (1)
+        {
+            char ch = *p;
+            switch (*p++)
+            {
+            case '\"':
+                break;
+            case '\\':
+            {
+                switch (*p++)
+                {
+                case '\"':
+                    s.append('\"');
+                    break;
+                case '\\':
+                    s.append('\\');
+                    break;
+                case '/':
+                    s.append('/');
+                    break;
+                case 'b':
+                    s.append('\b');
+                    break;
+                case 'f':
+                    s.append('\f');
+                    break;
+                case 'n':
+                    s.append('\n');
+                    break;
+                case 'r':
+                    s.append('\t');
+                    break;
+                case 't':
+                    s.append('\t');
+                    break;
+                default:
+                    return ParseRes::PARSE_INVALID_STRING_ESCAPE;
+                }
+            }
+            case '\0':
+                return ParseRes::PARSE_INVALID_STRING_ESCAPE;
+            default:
+                if ((unsigned char)ch < 0x20)
+                    return ParseRes::PARSE_INVALID_STRING_CHAR;
+                s.append(ch);
+            }
+        }
+        val.s = std::move(s);
+        type = AtomJsonType::Type::STRING;
         return ParseRes::PARSE_OK;
     }
 
