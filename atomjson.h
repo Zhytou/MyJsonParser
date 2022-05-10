@@ -3,6 +3,9 @@
 #define ATOMJSON_H
 #include <iostream>
 #include <assert.h>
+#include <cstring>
+#include <string>
+#include <vector>
 namespace AtomJson
 {
     namespace AtomJsonType
@@ -17,207 +20,157 @@ namespace AtomJson
             OBJECT
         };
 
-        typedef bool Null;
-
         typedef bool Boolen;
 
         typedef double Number;
 
+        /**
+         * @brief
+         *
+         */
         class String
         {
         public:
-            String()
-            {
-                size = 0;
-                capacity = 10;
-                s = new char[capacity];
-            }
+            /**
+             * @brief Construct a new String object
+             *
+             * @param len
+             */
+            String(size_t len = 10);
 
-            String(const char *other)
-            {
-                size = 0;
-                while (other[size] != '\0')
-                    size += 1;
-                capacity = 1.5 * size;
-                if (size == 0)
-                    s = nullptr;
-                else
-                {
-                    s = new char[capacity];
-                    for (size_t i = 0; i < size; i++)
-                        s[i] = other[i];
-                }
-            }
+            /**
+             * @brief Construct a new String object
+             *
+             * @param other
+             */
+            String(const char *other);
 
-            String(const String &other)
-            {
-                size = other.size;
-                capacity = other.capacity;
-                s = new char[capacity];
+            /**
+             * @brief Construct a new String object
+             *
+             * @param other
+             */
+            String(const String &other);
 
-                for (size_t i = 0; i < size; i++)
-                    s[i] = other.s[i];
-            }
+            /**
+             * @brief Construct a new String object
+             *
+             * @param other
+             */
+            String(String &&other);
 
-            String &operator=(const String &other)
-            {
-                if (s)
-                    delete s;
-                size = other.size;
-                capacity = other.capacity;
-                s = new char[capacity];
+            /**
+             * @brief String copy operator
+             *
+             * @param other
+             */
+            String &operator=(const String &other);
 
-                for (size_t i = 0; i < size; i++)
-                    s[i] = other.s[i];
-                return *this;
-            }
+            /**
+             * @brief Construct a new String object
+             *
+             * @param other
+             */
+            String &operator=(String &&other);
 
-            String &operator=(String &&other)
-            {
-                if (s)
-                    delete s;
-                s = other.s;
-                size = other.size;
-                capacity = other.capacity;
-                other.s = nullptr;
-                other.size = 0;
-                other.capacity = 0;
-                return *this;
-            }
+            /**
+             * @brief Destroy the String object
+             *
+             */
+            ~String();
 
-            ~String()
-            {
-                delete s;
-                size = 0;
-                capacity = 0;
-            }
+            /**
+             * @brief
+             *
+             * @return true
+             * @return false
+             */
+            bool empty() { return size == 0; }
 
-            bool isEmpty() { return size == 0; }
-            size_t getSize() { return size; }
+            /**
+             * @brief Get the Size
+             *
+             * @return size_t
+             */
+            size_t length() { return size; }
 
-            char &operator[](size_t pos)
-            {
-                assert(pos < size);
-                return s[pos];
-            }
+            /**
+             * @brief
+             *
+             * @param pos
+             * @return char&
+             */
+            char &operator[](size_t pos);
 
-            String &append(char ch)
-            {
-                while (size + 1 >= capacity)
-                {
-                    capacity = 1.5 * capacity;
-                }
-                char *ns = new char[capacity];
-                for (size_t i = 0; i < size; i++)
-                {
-                    ns[i] = s[i];
-                }
-                delete s;
-                s = ns;
-                s[size] = ch;
-                size += 1;
-                return *this;
-            }
+            /**
+             * @brief
+             *
+             * @param ch
+             * @return String&
+             */
+            String &append(char ch);
 
-            String &append(String &other, size_t pos = 0, size_t len = 1)
-            {
-                assert(pos + len < other.size);
-                while (size + len >= capacity)
-                {
-                    capacity = 1.5 * capacity;
-                }
-                char *ns = new char[capacity];
-                for (size_t i = 0; i < size; i++)
-                {
-                    ns[i] = s[i];
-                }
-                delete s;
-                s = ns;
-                for (size_t i = 0; i < len; i++)
-                {
-                    s[i] = other[pos + i];
-                }
-                size += len;
-                return *this;
-            }
+            /**
+             * @brief
+             *
+             * @param other
+             * @param pos
+             * @param len
+             * @return String&
+             */
+            String &append(String &other, size_t pos = 0, size_t len = 1);
 
             friend std::ostream &operator<<(std::ostream &out, const String &str);
 
         private:
-            char *s;
             size_t size, capacity;
+            char *p;
         };
 
-        std::ostream &operator<<(std::ostream &out, const String &str)
-        {
-            out << str.s;
-            return out;
-        }
-
-        struct Value
-        {
-            union SubValue
-            {
-                Boolen b;
-                Number n;
-                String s;
-                // Array *a;
-                // Object *o;
-
-                SubValue(){};
-                ~SubValue(){};
-            } val;
-            Type type;
-
-            Value() : type(_NULL){};
-
-            Value(const Value &other)
-            {
-                type = other.type;
-                switch (type)
-                {
-                case BOOLEN:
-                    val.b = other.val.b;
-                    break;
-                case NUMBER:
-                    val.n = other.val.n;
-                    break;
-                case STRING:
-                    val.s = other.val.s;
-                    break;
-                default:
-                    break;
-                }
-            }
-
-            Value(Value &&other)
-            {
-                type = other.type;
-                switch (type)
-                {
-                case BOOLEN:
-                    val.b = other.val.b;
-                    break;
-                case NUMBER:
-                    val.n = other.val.n;
-                    break;
-                case STRING:
-                    val.s = std::move(other.val.s);
-                    break;
-                default:
-                    break;
-                }
-            }
-            ~Value(){};
-        };
+        struct Value;
 
         class Array
         {
         public:
+            /**
+             * @brief Construct a new Array object
+             *
+             * @param len
+             */
+            Array(size_t len = 10);
+
+            /**
+             * @brief Destroy the Array object
+             *
+             */
+            ~Array();
+
+            /**
+             * @brief
+             *
+             * @return true
+             * @return false
+             */
+            bool empty() { return size == 0; }
+
+            /**
+             * @brief Get the length of the Array object
+             *
+             * @return size_t
+             */
+            size_t length() { return size; }
+
+            /**
+             * @brief
+             *
+             * @param idx
+             * @return Value&
+             */
             Value &operator[](size_t idx);
 
         private:
-            Value *arr;
+            size_t size, capacity;
+            Value *p;
         };
 
         class Object
@@ -226,7 +179,7 @@ namespace AtomJson
             struct Pair
             {
                 String key;
-                Value val;
+                Value *val;
                 Pair() = default;
             };
 
@@ -244,8 +197,49 @@ namespace AtomJson
             Value &operator[](char *key);
 
         private:
-            Pair *pairs;
             size_t size, capacity;
+            Pair *p;
+        };
+
+        struct Value
+        {
+            union SubValue
+            {
+                Boolen boolen;
+                Number num;
+                String str;
+                // Array arr;
+                // Object obj;
+                SubValue() { std::memset(this, 0, sizeof(SubValue)); }
+                ~SubValue() {}
+            } val;
+            Type type;
+
+            /**
+             * @brief Construct a new Value object
+             *
+             */
+            Value() : type(_NULL), val(){};
+
+            /**
+             * @brief Construct a new Value object
+             *
+             * @param other
+             */
+            Value(const Value &other);
+
+            /**
+             * @brief Construct a new Value object
+             *
+             * @param other
+             */
+            Value(Value &&other);
+
+            /**
+             * @brief Destroy the Value object
+             *
+             */
+            ~Value();
         };
 
     };
@@ -284,17 +278,12 @@ namespace AtomJson
         { ➔ object
         */
         ParseRes parse(const char *jsonstr);
-        // void stringify();
-        bool isEmpty() { return type == AtomJsonType::Type::_NULL; }
+        void stringify();
+
+        bool isNull() { return type == AtomJsonType::Type::_NULL; }
         bool isBoolen() { return type == AtomJsonType::Type::BOOLEN; }
         bool isNumber() { return type == AtomJsonType::Type::NUMBER; }
         bool isString() { return type == AtomJsonType::Type::STRING; }
-
-        AtomJsonType::String getString()
-        {
-            assert(isString());
-            return val.s;
-        }
 
     private:
         ParseRes parse(ParseContext *c);
