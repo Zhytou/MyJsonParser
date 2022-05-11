@@ -1,7 +1,7 @@
 #ifndef ATOMJSON_OBJECT_HPP
 #define ATOMJSON_OBJECT_HPP
 
-#include "AtomJson.hpp"
+#include <iostream>
 
 namespace AtomJson
 {
@@ -15,11 +15,7 @@ namespace AtomJson
             String key;
             Value *val;
             Pair() : key(), val(nullptr){};
-            ~Pair()
-            {
-                if (val)
-                    delete val;
-            }
+            ~Pair();
         };
 
         Object()

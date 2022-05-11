@@ -70,7 +70,12 @@ namespace AtomJson
          */
         Value &operator=(const Value &other);
 
-        /***/
+        /**
+         * @brief
+         *
+         * @param other
+         * @return Value&
+         */
         Value &operator=(Value &&other);
 
         /**
@@ -82,48 +87,41 @@ namespace AtomJson
         /**
          * @brief
          *
-         * @return true
-         * @return false
+         * @return bool
          */
         bool isNull() { return type == Type::_NULL; }
 
         /**
          * @brief
          *
-         * @return true
-         * @return false
-         */
+         * @return bool
         bool isBoolen() { return type == Type::BOOLEN; }
 
         /**
          * @brief
          *
-         * @return true
-         * @return false
+         * @return bool
          */
         bool isNumber() { return type == Type::NUMBER; }
 
         /**
          * @brief
          *
-         * @return true
-         * @return false
+         * @return bool
          */
         bool isString() { return type == Type::STRING; }
 
         /**
          * @brief
          *
-         * @return true
-         * @return false
+         * @return bool
          */
         bool isArray() { return type == Type::ARRAY; }
 
         /**
          * @brief
          *
-         * @return true
-         * @return false
+         * @return bool
          */
         bool isObject() { return type == Type::OBJECT; }
 

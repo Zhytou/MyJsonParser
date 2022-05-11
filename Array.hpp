@@ -1,7 +1,7 @@
 #ifndef ATOMJSON_ARRAY_HPP
 #define ATOMJSON_ARRAY_HPP
 
-#include "AtomJson.hpp"
+#include <iostream>
 
 namespace AtomJson
 {
@@ -11,6 +11,7 @@ namespace AtomJson
     {
     public:
         /**
+         * *Default constructor
          * @brief Construct a new Array object
          *
          * @param len
@@ -18,13 +19,48 @@ namespace AtomJson
         Array(size_t len = 10);
 
         /**
+         * *Copy constructor
+         * @brief Construct a new Array object  by another Array object
+         *
+         * @param other
+         */
+        Array(const Array &other);
+
+        /**
+         * *Move constructor
+         * @brief Construct a new Array object by moving another Array object
+         *
+         * @param other
+         */
+        Array(Array &&other);
+
+        /**
+         * *Copy assignment operator
+         * @brief Assign a new Array object by another Array object
+         *
+         * @param other
+         * @return Array&
+         */
+        Array &operator=(const Array &other);
+
+        /**
+         * *Move assignment operator
+         * @brief
+         *
+         * @param other
+         * @return Array&
+         */
+        Array &operator=(Array &&other);
+
+        /**
+         * *Destructor
          * @brief Destroy the Array object
          *
          */
         ~Array();
 
         /**
-         * @brief
+         * @brief Check if the Array object is empty
          *
          * @return true
          * @return false
@@ -39,6 +75,7 @@ namespace AtomJson
         size_t length() { return size; }
 
         /**
+         * *Overload the array index operator
          * @brief
          *
          * @param idx
@@ -47,7 +84,7 @@ namespace AtomJson
         Value &operator[](size_t idx);
 
         /**
-         * @brief
+         * @brief Add an element to the tail of Array object
          *
          * @param val
          * @return Array&
@@ -58,59 +95,5 @@ namespace AtomJson
         size_t size, capacity;
         Value *p;
     };
-
-    Array::Array(size_t len)
-    {
-        size = 0;
-        if (len < 10)
-            capacity = 10;
-        else
-            capacity = len;
-        p = new Value[capacity];
-    }
-
-    Array::~Array()
-    {
-        if (p)
-            delete[] p;
-        p = nullptr;
-        size = 0;
-        capacity = 0;
-    }
-
-    Value &Array::operator[](size_t idx)
-    {
-        assert(idx < size);
-        return p[idx];
-    }
-
-    Array &Array::append(const Value &val)
-    {
-        if (size + 1 > capacity)
-        {
-            do
-            {
-                if (capacity == 0)
-                    capacity = 10;
-                else
-                    capacity = 1.5 * capacity;
-            } while (size + 1 > capacity);
-
-            if (p)
-            {
-                Value *np = new Value[capacity];
-                for (size_t i = 0; i < size; i++)
-                {
-                    np[i] = p[i];
-                }
-                delete[] p;
-            }
-            else
-                p = new Value[capacity];
-        }
-        p[size] = val;
-        size += 1;
-        return *this;
-    }
 };
 #endif
