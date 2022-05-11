@@ -13,7 +13,7 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-add_library(atomjson atomjson.cpp)
+add_library(atomjson Atomjson.cpp String.cpp Array.cpp Object.cpp)
 add_executable(test test.cpp)
 target_link_libraries(test gtest_main atomjson pthread)
 
