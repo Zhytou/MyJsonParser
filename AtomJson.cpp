@@ -265,7 +265,7 @@ namespace AtomJson
             case '\"':
                 c->jsonstr = p;
                 c->buffer.append(s);
-                this->val.str = s;
+                this->val.str = std::move(s);
                 type = Type::STRING;
                 return ParseRes::PARSE_OK;
             case '\\':
@@ -326,8 +326,8 @@ namespace AtomJson
             {
             case ']':
                 break;
-            case '\,':
-
+            case ',':
+                break;
             case '\0':
                 return ParseRes::PARSE_MISS_SQUARE_BRACKET;
             default:
