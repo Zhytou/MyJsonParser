@@ -18,13 +18,7 @@ namespace AtomJson
             ~Pair();
         };
 
-        Object()
-        {
-            capacity = 1;
-            // pairs = new Pair[capacity];
-        }
-
-        Object(size_t len);
+        Object(size_t len = 10);
 
         ~Object();
 
