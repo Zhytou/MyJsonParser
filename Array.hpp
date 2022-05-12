@@ -76,7 +76,7 @@ namespace AtomJson
 
         /**
          * *Overload the array index operator
-         * @brief
+         * @brief get the element in the idx position of the Array object
          *
          * @param idx
          * @return Value&
@@ -90,6 +90,14 @@ namespace AtomJson
          * @return Array&
          */
         Array &append(const Value &val);
+
+        /**
+         * @brief Add an element to the tail of Array object
+         *
+         * @param val
+         * @return Array&
+         */
+        Array &append(Value &&val);
 
     private:
         size_t size, capacity;
