@@ -73,6 +73,7 @@ namespace AtomJson
         p = other.p;
         size = other.size;
         capacity = other.capacity;
+
         other.p = nullptr;
         other.size = 0;
         other.capacity = 0;
