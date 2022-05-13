@@ -145,7 +145,12 @@ namespace AtomJson
             SubValue &
             operator=(const SubValue &other) = delete;
 
-            /***/
+            /**
+             * @brief
+             *
+             * @param other
+             * @return SubValue&
+             */
             SubValue &operator=(SubValue &&other)
             {
                 std::memcpy(this, &other, sizeof(SubValue));
@@ -290,6 +295,19 @@ namespace AtomJson
          * @return bool
          */
         bool isBoolen() { return type == Type::BOOLEN; }
+
+        /***/
+        bool isTrue()
+        {
+            assert(type == Type::BOOLEN);
+            return val.boolen == true;
+        }
+
+        bool isFalse()
+        {
+            assert(type == Type::BOOLEN);
+            return val.boolen == false;
+        }
 
         /**
          * @brief
@@ -498,5 +516,7 @@ namespace AtomJson
     };
 
 } // namespace AtomJson
+
+namespace ajson = AtomJson;
 
 #endif
