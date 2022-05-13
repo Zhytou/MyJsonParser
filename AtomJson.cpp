@@ -244,7 +244,8 @@ namespace AtomJson
             if (c->jsonstr[1] != 'r' || c->jsonstr[2] != 'u' || c->jsonstr[3] != 'e')
                 return ParseRes::PARSE_INVALID_VALUE;
             c->jsonstr += 4;
-            type = Type::BOOLEN;
+            c->buffer.append(std::move(Value(true)));
+            this->type = Type::BOOLEN;
             this->val.boolen = true;
         }
         else if (c->jsonstr[0] == 'f')
@@ -252,7 +253,8 @@ namespace AtomJson
             if (c->jsonstr[1] != 'a' || c->jsonstr[2] != 'l' || c->jsonstr[3] != 's' || c->jsonstr[4] != 'e')
                 return ParseRes::PARSE_INVALID_VALUE;
             c->jsonstr += 5;
-            type = Type::BOOLEN;
+            c->buffer.append(std::move(Value(false)));
+            this->type = Type::BOOLEN;
             this->val.boolen = false;
         }
         else
