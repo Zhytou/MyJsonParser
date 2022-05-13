@@ -338,6 +338,29 @@ namespace AtomJson
         bool isObject() { return type == Type::OBJECT; }
 
         /**
+         * @brief
+         *
+         * @return size_t
+         */
+        size_t length()
+        {
+            assert(isNull() || isString() || isArray() || isObject());
+            switch (type)
+            {
+            case Type::_NULL:
+                return 0;
+            case Type::STRING:
+                return val.str.length();
+            case Type::ARRAY:
+                return val.arr.length();
+            case Type::OBJECT:
+                return val.obj.length();
+            default:
+                return -1;
+            }
+        }
+
+        /**
          * @brief Set the Value object to NULL
          *
          */
@@ -426,6 +449,14 @@ namespace AtomJson
          * @return Value&
          */
         Value &operator[](String key);
+
+        /**
+         * @brief Check if the two Value objects are the same
+         *
+         * @param other
+         * @return bool
+         */
+        bool operator==(const Value &other);
     };
 
     class Json : public Value
