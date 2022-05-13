@@ -5,9 +5,10 @@ namespace AtomJson
 {
     String::String(size_t len)
     {
-        assert(len >= 1);
+        assert(len >= 0);
         size = len;
-        capacity = 1.5 * len;
+        // capacity adds 2 to avoid the case that length equals 1 or 0 and capacity will always be 1
+        capacity = 1.5 * len + 2;
         p = new char[capacity];
     }
 

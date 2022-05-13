@@ -15,9 +15,9 @@ namespace AtomJson
          * * Default constructor
          * @brief Construct a new String object
          *
-         * @param len
+         * @param len | the initial len of the Sting object
          */
-        String(size_t len = 1);
+        String(size_t len = 0);
 
         /**
          * * C-style string constructor
