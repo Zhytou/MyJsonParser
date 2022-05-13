@@ -181,6 +181,35 @@ namespace AtomJson
         return val.arr[idx];
     }
 
+    Value &Value::operator[](const String key)
+    {
+        assert(isObject());
+        return val.obj[key];
+    }
+
+    bool Value::operator==(const Value &other)
+    {
+        if (type == other.type)
+        {
+            switch (type)
+            {
+            case Type::BOOLEN:
+                return val.boolen == other.val.boolen;
+            case Type::NUMBER:
+                return val.num == other.val.num;
+            case Type::STRING:
+                return val.str == other.val.str;
+            case Type::ARRAY:
+                return val.arr == other.val.arr;
+            case Type::OBJECT:
+                return val.obj == other.val.obj;
+            default:
+                return true;
+            }
+        }
+        return false;
+    }
+
     Json::ParseRes Json::parse(const char *jsonstr)
     {
         ParseContext c(jsonstr);
