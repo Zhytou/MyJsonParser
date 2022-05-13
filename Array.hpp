@@ -14,9 +14,17 @@ namespace AtomJson
          * *Default constructor
          * @brief Construct a new Array object
          *
+         * @param len | the initial lenght of the Array object
+         */
+        Array(size_t len = 0);
+
+        /**
+         * @brief Construct a new Array object
+         *
+         * @param element
          * @param len
          */
-        Array(size_t len = 10);
+        Array(const Value &element, size_t len);
 
         /**
          * *Copy constructor

@@ -5,12 +5,22 @@ namespace AtomJson
 {
     Array::Array(size_t len)
     {
-        size = 0;
-        if (len < 10)
-            capacity = 10;
-        else
-            capacity = len;
+        assert(len >= 0);
+        size = len;
+        // capacity adds 1 to avoid the case that length equals 1 or 0 and capacity will always be 1
+        capacity = 1.5 * len + 2;
         p = new Value[capacity];
+    }
+
+    Array::Array(const Value &element, size_t len)
+    {
+        assert(len >= 1);
+        size = len;
+        // capacity adds 1 to avoid the case that length equals 1 and capacity will always be 1
+        capacity = 1.5 * len + 2;
+        p = new Value[capacity];
+        for (size_t i = 0; i < size; i++)
+            p[i] = element;
     }
 
     Array::Array(const Array &other)
@@ -96,7 +106,7 @@ namespace AtomJson
         {
             do
             {
-                if (capacity == 0)
+                if (capacity == 0 && capacity == 1)
                     capacity = 10;
                 else
                     capacity = 1.5 * capacity;
@@ -110,6 +120,7 @@ namespace AtomJson
                     np[i] = p[i];
                 }
                 delete[] p;
+                p = np;
             }
             else
                 p = new Value[capacity];
@@ -125,7 +136,7 @@ namespace AtomJson
         {
             do
             {
-                if (capacity == 0)
+                if (capacity == 0 || capacity == 1)
                     capacity = 10;
                 else
                     capacity = 1.5 * capacity;
@@ -139,6 +150,7 @@ namespace AtomJson
                     np[i] = p[i];
                 }
                 delete[] p;
+                p = np;
             }
             else
                 p = new Value[capacity];
