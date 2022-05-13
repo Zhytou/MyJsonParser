@@ -17,7 +17,7 @@ namespace AtomJson
          *
          * @param len
          */
-        String(size_t len = 0);
+        String(size_t len = 1);
 
         /**
          * * C-style string constructor

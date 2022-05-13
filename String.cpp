@@ -5,15 +5,10 @@ namespace AtomJson
 {
     String::String(size_t len)
     {
-        size = 0;
-        if (len < 10 && len != 0)
-            capacity = 10;
-        else
-            capacity = len;
-        if (capacity)
-            p = new char[capacity];
-        else
-            p = nullptr;
+        assert(len >= 1);
+        size = len;
+        capacity = 1.5 * len;
+        p = new char[capacity];
     }
 
     String::String(const char *other)
