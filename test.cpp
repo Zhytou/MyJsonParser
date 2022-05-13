@@ -34,3 +34,9 @@ TEST(JsonParse, HandleString)
     TEST_STRING("\"this is a string\"", "this is a string");
     TEST_STRING("\"\\\" \\\\ \\/ \\b \\f \\n \\r \\t\"", "\" \\ / \b \f \n \r \t");
 }
+
+TEST(JsonParse, HandleArray)
+{
+    Json json;
+    EXPECT_EQ(json.parse("[\"1\",[true, false]]"), Json::ParseRes::PARSE_OK);
+}
