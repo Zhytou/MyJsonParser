@@ -71,6 +71,10 @@ namespace AtomJson
         default:
             break;
         }
+
+        // don't need this memset, because the val is calling String/Array/Object move constructor and they will set the bytes zero to make sure the dynamic memory is freed.
+        // std::memset(&other, 0, sizeof(Value));
+        // other.type = _NULL;
     }
 
     Value &Value::operator=(const Value &other)
@@ -121,6 +125,10 @@ namespace AtomJson
         default:
             break;
         }
+
+        // don't need this memset, because the val is calling String/Array/Object move constructor and they will set the bytes zero to make sure the dynamic memory is freed.
+        // std::memset(&other, 0, sizeof(Value));
+        // other.type = _NULL;
 
         return *this;
     }
@@ -316,25 +324,32 @@ namespace AtomJson
 
     Json::ParseRes Json::parse_array(ParseContext *c)
     {
+        ParseRes ret;
+        Array a;
+
         c->jsonstr += 1;
         while (1)
         {
             parse_whitespace(c);
-            parse(c);
+            if ((ret = parse(c)) != ParseRes::PARSE_OK)
+                return ret;
             parse_whitespace(c);
-            switch (*c->jsonstr)
+            switch (*c->jsonstr++)
             {
             case ']':
-                break;
+                c->buffer.append(a);
+                this->val = std::move(a);
+                this->type = Type::ARRAY;
+                return ParseRes::PARSE_OK;
             case ',':
+                a.append(c->buffer.pop());
                 break;
             case '\0':
                 return ParseRes::PARSE_MISS_SQUARE_BRACKET;
             default:
-                break;
+                return ParseRes::PARSE_INVALID_VALUE;
             }
         }
-        return ParseRes::PARSE_OK;
     }
 
     Json::ParseRes Json::parse_object(ParseContext *c)
