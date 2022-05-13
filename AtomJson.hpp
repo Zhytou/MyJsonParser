@@ -457,6 +457,11 @@ namespace AtomJson
          * @return bool
          */
         bool operator==(const Value &other);
+
+        bool operator!=(const Value &other)
+        {
+            return !(this->operator==(other));
+        }
     };
 
     class Json : public Value
