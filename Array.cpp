@@ -78,6 +78,18 @@ namespace AtomJson
         return p[idx];
     }
 
+    bool Array::operator==(const Array &other)
+    {
+        if (size == other.size)
+        {
+            for (size_t i = 0; i < size; i++)
+                if (p[i] != other.p[i])
+                    return false;
+            return true;
+        }
+        return false;
+    }
+
     Array &Array::append(const Value &val)
     {
         if (size + 1 > capacity)

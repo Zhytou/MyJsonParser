@@ -84,6 +84,14 @@ namespace AtomJson
         Value &operator[](size_t idx);
 
         /**
+         * @brief
+         *
+         * @param other
+         * @return bool
+         */
+        bool operator==(const Array &other);
+
+        /**
          * @brief Add an element to the tail of Array object
          *
          * @param val
@@ -102,7 +110,7 @@ namespace AtomJson
         /**
          * @brief Pop the element at the tail of Array object
          *
-         * @return Value&&
+         * @return Value
          */
         Value pop();
 
