@@ -213,7 +213,7 @@ namespace AtomJson
     Json::ParseRes Json::parse(const char *jsonstr)
     {
         ParseContext c(jsonstr);
-        type = Type::_NULL;
+        this->setNull();
         ParseRes ret;
 
         parse_whitespace(&c);
@@ -235,6 +235,17 @@ namespace AtomJson
         case 't':
         case 'f':
             return parse_boolen(c);
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            return parse_number(c);
         case '\"':
             return parse_string(c);
         case '[':
@@ -291,11 +302,18 @@ namespace AtomJson
         return ParseRes::PARSE_OK;
     }
 
+    Json::ParseRes Json::parse_number(ParseContext *c)
+    {
+        // TODO: parse_number
+        return ParseRes::PARSE_OK;
+    }
+
     Json::ParseRes Json::parse_string(ParseContext *c)
     {
         const char *p = c->jsonstr;
+        String s;
+
         p += 1;
-        String s(10);
         while (1)
         {
             char ch = *p;
@@ -358,25 +376,40 @@ namespace AtomJson
         ParseRes ret;
         Array a;
 
+        // avoid the cases like this [ element , ] or [ , ]
+        bool valuePushed = false;
+
         c->jsonstr += 1;
         while (1)
         {
+
             parse_whitespace(c);
             switch (*c->jsonstr++)
             {
             case ']':
+                // avoid the cases like this [ element , ] and allow [ ]
+                if (!a.empty() && !valuePushed)
+                    return ParseRes::PARSE_INVALID_COMMA;
+
                 c->buffer.append(a);
                 this->val = std::move(a);
                 this->type = Type::ARRAY;
                 return ParseRes::PARSE_OK;
             case ',':
-                a.append(c->buffer.pop());
+                // avoid the cases like this [ , element ]
+                if (!valuePushed)
+                    return ParseRes::PARSE_INVALID_COMMA;
+                valuePushed = false;
                 break;
             case '\0':
                 return ParseRes::PARSE_MISS_SQUARE_BRACKET;
             default:
+                // c->jsonstr -= 1 is to make the jsonstr stay at 'n' or 't' or 'f' or '0 - 9' or '\"' or '[' or '{'
+                c->jsonstr -= 1;
                 if ((ret = parse(c)) != ParseRes::PARSE_OK)
                     return ret;
+                a.append(c->buffer.pop());
+                valuePushed = true;
             }
         }
     }

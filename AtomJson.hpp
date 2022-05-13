@@ -478,6 +478,7 @@ namespace AtomJson
             PARSE_INVALID_STRING_CHAR,
             PARSE_INVALID_STRING_ESCAPE,
 
+            PARSE_INVALID_COMMA,
             PARSE_MISS_SQUARE_BRACKET,
         };
 
