@@ -131,8 +131,15 @@ namespace AtomJson
             else
                 p = new Value[capacity];
         }
-        p[size] = val;
+        p[size] = std::move(val);
         size += 1;
         return *this;
+    }
+
+    Value Array::pop()
+    {
+        assert(size >= 1);
+        size -= 1;
+        return Value(std::move(p[size]));
     }
 } // namespace AtomJson

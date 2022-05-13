@@ -99,6 +99,13 @@ namespace AtomJson
          */
         Array &append(Value &&val);
 
+        /**
+         * @brief Pop the element at the tail of Array object
+         *
+         * @return Value&&
+         */
+        Value pop();
+
     private:
         size_t size, capacity;
         Value *p;
