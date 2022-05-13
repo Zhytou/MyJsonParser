@@ -333,9 +333,6 @@ namespace AtomJson
         while (1)
         {
             parse_whitespace(c);
-            if ((ret = parse(c)) != ParseRes::PARSE_OK)
-                return ret;
-            parse_whitespace(c);
             switch (*c->jsonstr++)
             {
             case ']':
@@ -349,7 +346,8 @@ namespace AtomJson
             case '\0':
                 return ParseRes::PARSE_MISS_SQUARE_BRACKET;
             default:
-                return ParseRes::PARSE_INVALID_VALUE;
+                if ((ret = parse(c)) != ParseRes::PARSE_OK)
+                    return ret;
             }
         }
     }
