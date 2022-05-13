@@ -35,8 +35,29 @@ TEST(JsonParse, HandleString)
     TEST_STRING("\"\\\" \\\\ \\/ \\b \\f \\n \\r \\t\"", "\" \\ / \b \f \n \r \t");
 }
 
+#define TEST_ARRAY(jsonstr, expected)                             \
+    do                                                            \
+    {                                                             \
+        EXPECT_EQ(json.parse(jsonstr), Json::ParseRes::PARSE_OK); \
+        for (size_t i = 0; i < json.length(); i++)                \
+        {                                                         \
+            EXPECT_EQ(json[i] == expected[i], true);              \
+        }                                                         \
+    } while (0)
+
 TEST(JsonParse, HandleArray)
 {
     Json json;
-    EXPECT_EQ(json.parse("[\"1\",[true, false]]"), Json::ParseRes::PARSE_OK);
+    Array a;
+    TEST_ARRAY("[]", a);
+
+    a.append(String("hello"));
+    a.append(String("world"));
+    TEST_ARRAY("[\"hello\",\"world\"]", a);
+
+    Array a1;
+    a1.append(true);
+    a1.append(false);
+    a.append(a1);
+    TEST_ARRAY("[\"hello\",\"world\"],[true,false]", a);
 }
