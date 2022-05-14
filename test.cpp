@@ -18,6 +18,38 @@ TEST(JsonParse, HandleBoolen)
     EXPECT_EQ(json.isFalse(), true);
 }
 
+#define TEST_NUMBER(jsonstr, expected)                            \
+    do                                                            \
+    {                                                             \
+        EXPECT_EQ(json.parse(jsonstr), Json::ParseRes::PARSE_OK); \
+        EXPECT_EQ(json.getNumber(), expected);                    \
+    } while (0)
+
+TEST(JsonParse, HandleNumber)
+{
+    Json json;
+    TEST_NUMBER("0", 0.0);
+    TEST_NUMBER("-0", 0.0);
+    TEST_NUMBER("-0.0", 0.0);
+    TEST_NUMBER("1", 1);
+    TEST_NUMBER("-1", -1);
+    TEST_NUMBER("1.5", 1.5);
+    TEST_NUMBER("-1.5", -1.5);
+    TEST_NUMBER("3.1416", 3.1416);
+    TEST_NUMBER("1E10", 1E10);
+    TEST_NUMBER("1e10", 1e10);
+    TEST_NUMBER("1E+10", 1E+10);
+    TEST_NUMBER("1E-10", 1E-10);
+    TEST_NUMBER("-1E10", -1E10);
+    TEST_NUMBER("-1e10", -1e10);
+    TEST_NUMBER("-1E+10", -1E+10);
+    TEST_NUMBER("-1E-10", -1E-10);
+    TEST_NUMBER("1.234E+10", 1.234E+10);
+    TEST_NUMBER("1.234E-10", 1.234E-10);
+    TEST_NUMBER("1e-10000", 0.0);
+    ;
+}
+
 #define TEST_STRING(jsonstr, expected)                            \
     do                                                            \
     {                                                             \
@@ -59,5 +91,5 @@ TEST(JsonParse, HandleArray)
     a1.append(true);
     a1.append(false);
     a.append(a1);
-    TEST_ARRAY("[\"hello\",\"world\"],[true,false]", a);
+    TEST_ARRAY("[\"hello\",\"world\",[true,false]]", a);
 }
