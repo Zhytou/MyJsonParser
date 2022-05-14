@@ -1,6 +1,9 @@
 #ifndef ATOMJSON_STRING_HPP
 #define ATOMJSON_STRING_HPP
+
 #include <iostream>
+#include <string>
+#include <functional>
 
 namespace AtomJson
 {
@@ -71,14 +74,20 @@ namespace AtomJson
          *
          * @return bool
          */
-        bool empty() { return size == 0 && p == nullptr; }
+        bool empty() const { return size == 0 && p == nullptr; }
 
         /**
          * @brief Get the length of the String object
          *
          * @return size_t
          */
-        size_t length() { return size; }
+        size_t length() const { return size; }
+
+        size_t hashcode() const
+        {
+            std::hash<std::string> h;
+            return h(stl_str());
+        }
 
         /**
          * *Overload array index operator
@@ -96,7 +105,7 @@ namespace AtomJson
          * @param other
          * @return bool
          */
-        bool operator==(const String &other);
+        bool operator==(const String &other) const;
 
         /**
          * *Overload the output operator
@@ -125,6 +134,31 @@ namespace AtomJson
          * @return String&
          */
         String &append(String &other, size_t pos = 0, size_t len = 1);
+
+        /**
+         * @brief Get a std::string
+         *
+         * @return std::string
+         */
+        std::string stl_str() const
+        {
+            return std::string(p);
+        }
+
+        /**
+         * ! The returned char* should be freed by user himself, otherwise memory will leak
+         * @brief Get a C style string
+         *
+         * @return const char*
+         */
+        const char *c_str() const
+        {
+            char *s = new char[size + 1];
+            for (size_t i = 0; i < size; i++)
+                s[i] = p[i];
+            s[size] = '\0';
+            return s;
+        }
 
     private:
         size_t size, capacity;
