@@ -1,4 +1,6 @@
-﻿#include "AtomJson.hpp"
+﻿#include "errno.h"
+#include "math.h"
+#include "AtomJson.hpp"
 
 namespace AtomJson
 {
@@ -245,6 +247,7 @@ namespace AtomJson
         case '7':
         case '8':
         case '9':
+        case '-':
             return parse_number(c);
         case '\"':
             return parse_string(c);
@@ -304,7 +307,66 @@ namespace AtomJson
 
     Json::ParseRes Json::parse_number(ParseContext *c)
     {
-        // TODO: parse_number
+        bool isZeroStart = false, isFloatPoint = false, isScientificNotation = false;
+        const char *p = c->jsonstr;
+
+        if (*p == '-')
+        {
+            p += 1;
+        }
+
+        if (*p == '0')
+        {
+            isZeroStart = true;
+            p += 1;
+        }
+
+        while ('0' <= *p && *p <= '9')
+        {
+            if (isZeroStart)
+                return ParseRes::PARSE_INVALID_ZERO_START;
+            p += 1;
+        }
+
+        if (*p == '.')
+        {
+            isFloatPoint = true;
+            p += 1;
+        }
+
+        while ('0' <= *p && *p <= '9')
+        {
+            p += 1;
+        }
+
+        if (*p == 'e' || *p == 'E')
+        {
+            isScientificNotation = true;
+            p += 1;
+        }
+
+        if (*p == '+' || *p == '-')
+        {
+            p += 1;
+        }
+
+        while ('0' <= *p && *p <= '9')
+        {
+            if (!isScientificNotation)
+                return ParseRes::PARSE_INVALID_SCIENTIFIC_NOTATION;
+            p += 1;
+        }
+
+        errno = 0;
+        double n = strtod(c->jsonstr, NULL);
+
+        if (errno == ERANGE && (n == HUGE_VAL || n == -HUGE_VAL))
+            return ParseRes::PARSE_NUMBER_OVERFLOW;
+
+        c->jsonstr = p;
+        c->buffer.append(p);
+        this->type = Type::NUMBER;
+        this->val.num = n;
         return ParseRes::PARSE_OK;
     }
 
