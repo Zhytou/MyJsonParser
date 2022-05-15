@@ -91,7 +91,7 @@ namespace AtomJson
         return p[idx];
     }
 
-    bool String::operator==(const String &other)
+    bool String::operator==(const String &other) const
     {
         if (size != other.size)
             return false;
