@@ -478,7 +478,46 @@ namespace AtomJson
 
     Json::ParseRes Json::parse_object(ParseContext *c)
     {
-        return ParseRes::PARSE_OK;
+        ParseRes ret;
+        Object o;
+
+        c->jsonstr += 1;
+        while (1)
+        {
+            Value val;
+            String key;
+
+            parse_whitespace(c);
+            if ((ret = parse_string(c)) != ParseRes::PARSE_OK)
+                return ret;
+            key = std::move(c->buffer.pop().val.str);
+
+            parse_whitespace(c);
+            if (*c->jsonstr != ':')
+                return ParseRes::PARSE_MISS_COLON;
+            c->jsonstr += 1;
+
+            parse_whitespace(c);
+            if ((ret = parse(c)) != ParseRes::PARSE_OK)
+                return ret;
+            val = std::move(c->buffer.pop());
+            o[key] = val;
+
+            parse_whitespace(c);
+            if (*c->jsonstr == '\0')
+                return ParseRes::PARSE_MISS_BRACKET;
+            if (*c->jsonstr == '}')
+            {
+                c->jsonstr += 1;
+                c->buffer.append(o);
+                this->val = std::move(o);
+                this->type = Type::OBJECT;
+                return ParseRes::PARSE_OK;
+            }
+            if (*c->jsonstr != ',')
+                return ParseRes::PARSE_MISS_COMMA;
+            c->jsonstr += 1;
+        }
     }
 
 }
