@@ -458,10 +458,25 @@ namespace AtomJson
          */
         bool operator==(const Value &other);
 
+        /**
+         * @brief Check if the two Value objects are not the same
+         *
+         * @param other
+         * @return true
+         * @return false
+         */
         bool operator!=(const Value &other)
         {
             return !(this->operator==(other));
         }
+
+        /**
+         * @brief
+         *
+         * @param out
+         * @return std::ostream
+         */
+        friend std::ostream operator<<(std::ostream &out, Value);
     };
 
     class Json : public Value
@@ -484,6 +499,10 @@ namespace AtomJson
 
             PARSE_INVALID_COMMA,
             PARSE_MISS_SQUARE_BRACKET,
+
+            PARSE_MISS_COLON,
+            PARSE_MISS_COMMA,
+            PARSE_MISS_BRACKET
         };
 
         struct ParseContext
