@@ -2,6 +2,7 @@
 #define ATOMJSON_OBJECT_HPP
 
 #include <iostream>
+#include "Array.hpp"
 
 namespace AtomJson
 {
@@ -26,16 +27,19 @@ namespace AtomJson
             Item() : val(nullptr) {}
 
             /**
+             * @brief Construct a new Item object
+             *
+             * @param k
+             */
+            Item(const String &k, Value *v = nullptr) : key(k), val(v) {}
+
+            /**
              * *Copy constructor
              * @brief Construct a new Item object by copying another Item object
              *
              * @param other
              */
-            Item(const Item &other)
-            {
-                key = other.key;
-                val = new Value(*other.val);
-            }
+            Item(const Item &other);
 
             /**
              * *Move constructor
@@ -43,12 +47,7 @@ namespace AtomJson
              *
              * @param other
              */
-            Item(Item &&other)
-            {
-                key = std::move(other.key);
-                val = other.val;
-                other.val = nullptr;
-            }
+            Item(Item &&other);
 
             /**
              * *Copy assignment operator
@@ -57,12 +56,7 @@ namespace AtomJson
              * @param other
              * @return Item&
              */
-            Item &operator=(const Item &other)
-            {
-                key = other.key;
-                val = new Value(*other.val);
-                return *this;
-            }
+            Item &operator=(const Item &other);
 
             /**
              * *Move assignment operator
@@ -71,24 +65,14 @@ namespace AtomJson
              * @param other
              * @return Item&
              */
-            Item &operator=(Item &&other)
-            {
-                key = std::move(other.key);
-                val = other.val;
-                other.val = nullptr;
-                return *this;
-            }
+            Item &operator=(Item &&other);
 
             /**
              * *Destructor
              *  @brief Destroy the Item object
              *
              */
-            ~Item()
-            {
-                if (val)
-                    delete val;
-            }
+            ~Item();
         };
 
         /**
@@ -156,6 +140,7 @@ namespace AtomJson
         size_t length() { return size; }
 
         /**
+         * ! Be careful, calling this function automatically insert a new Item object whose key equals the param key no matter if the Item existed or not. (just like the map [] function in STL C++ library)
          * @brief
          *
          * @param key
@@ -164,12 +149,27 @@ namespace AtomJson
         Value &operator[](const String &key);
 
         /**
-         * @brief
+         * ! Be careful, this function checks if the structures and contents of the two objects are exactly the same.
+         * @brief Check if the two Object objects are exactly the same
          *
          * @param other
          * @return bool
          */
         bool operator==(const Object &other);
+
+        /**
+         * @brief Get an Array of all the keys in the Object
+         *
+         * @return Array
+         */
+        Array keys();
+
+        /**
+         * @brief Get an Array of all the values in the Object
+         *
+         * @return Array
+         */
+        Array values();
 
     private:
         bool need_resize()
