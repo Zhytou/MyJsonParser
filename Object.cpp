@@ -6,6 +6,40 @@
 
 namespace AtomJson
 {
+    Object::Item::Item(const Item &other)
+    {
+        key = other.key;
+        val = new Value(*other.val);
+    }
+
+    Object::Item::Item(Item &&other)
+    {
+        key = std::move(other.key);
+        val = other.val;
+        other.val = nullptr;
+    }
+
+    Object::Item &Object::Item::operator=(const Item &other)
+    {
+        key = other.key;
+        val = new Value(*other.val);
+        return *this;
+    }
+
+    Object::Item &Object::Item::operator=(Item &&other)
+    {
+        key = std::move(other.key);
+        val = other.val;
+        other.val = nullptr;
+        return *this;
+    }
+
+    Object::Item::~Item()
+    {
+        if (val)
+            delete val;
+    }
+
     Object::Object()
     {
         size = 0;
@@ -89,13 +123,80 @@ namespace AtomJson
     Value &Object::operator[](const String &key)
     {
         size_t idx = key.hashcode() % capacity;
-        Node *head = p[idx];
+        Node *node = nullptr;
+        bool flag = true;
+
+        for (node = p[idx]; node != nullptr; node = node->next)
+        {
+            if (!flag && node == p[idx])
+            {
+                node = nullptr;
+                break;
+            }
+
+            flag = false;
+            if (node->item.key == key)
+            {
+                // delete node and later insert it back to list in order to implenment the LRU.
+                Node *prev = node->prev, *next = node->next;
+                node->prev = nullptr;
+                node->next = nullptr;
+
+                prev->next = next;
+                next->prev = prev;
+                break;
+            }
+        }
+
+        if (node == nullptr)
+        {
+            node = new Node(key, new Value());
+            occupiedEntry += 1;
+        }
+
+        p[idx] = insertDLLNode(p[idx], node);
+
+        return *(node->item.val);
     }
 
     bool Object::operator==(const Object &other)
     {
         // TODO:
         return false;
+    }
+
+    Array Object::keys()
+    {
+        Array a;
+        for (size_t i = 0; i < capacity; i++)
+        {
+            bool flag = true;
+            for (Node *node = p[i]; node != nullptr; node = node->next)
+            {
+                if (!flag && node == p[i])
+                    break;
+                flag = false;
+                a.append(node->item.key);
+            }
+        }
+        return std::move(a);
+    }
+
+    Array Object::values()
+    {
+        Array a;
+        for (size_t i = 0; i < capacity; i++)
+        {
+            bool flag = true;
+            for (Node *node = p[i]; node != nullptr; node = node->next)
+            {
+                if (!flag && node == p[i])
+                    break;
+                flag = false;
+                a.append(*(node->item.val));
+            }
+        }
+        return std::move(a);
     }
 
     void Object::resize()
