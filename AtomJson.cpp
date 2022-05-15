@@ -501,7 +501,7 @@ namespace AtomJson
             if ((ret = parse(c)) != ParseRes::PARSE_OK)
                 return ret;
             val = std::move(c->buffer.pop());
-            o[key] = val;
+            o[key] = std::move(val);
 
             parse_whitespace(c);
             if (*c->jsonstr == '\0')
