@@ -5,6 +5,8 @@
 
 namespace AtomJson
 {
+    struct Value;
+
     struct DoubleyLinkedListNode
     {
         Object::Item item;
@@ -12,7 +14,31 @@ namespace AtomJson
 
         typedef DoubleyLinkedListNode Node;
 
+        /**
+         * *Default constructor
+         * @brief Construct a new Doubley Linked List Node object
+         *
+         */
         DoubleyLinkedListNode() : prev(nullptr), next(nullptr) {}
+
+        /**
+         * @brief Construct a new Doubley Linked List Node object
+         *
+         * @param k
+         * @param v
+         */
+        DoubleyLinkedListNode(const String &k, Value *v = nullptr) : prev(nullptr), next(nullptr), item(k, v) {}
+
+        /**
+         * *Destructor
+         * @brief Destroy the Doubley Linked List Node object
+         *
+         */
+        ~DoubleyLinkedListNode()
+        {
+            prev = nullptr;
+            next = nullptr;
+        }
     };
 
     typedef DoubleyLinkedListNode Node;
@@ -42,6 +68,10 @@ namespace AtomJson
             first_visited = false;
         }
         dummy->next->prev = target;
+        Node *nhead = dummy->next;
+        if (dummy)
+            delete dummy;
+        return nhead;
     }
 
     /**
