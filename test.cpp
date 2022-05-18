@@ -93,3 +93,40 @@ TEST(JsonParse, HandleArray)
     a.append(a1);
     TEST_ARRAY("[\"hello\",\"world\",[true,false]]", a);
 }
+
+#define TEST_OBJECT(jsonstr, expected)                                                   \
+    do                                                                                   \
+    {                                                                                    \
+        EXPECT_EQ(json.parse(jsonstr), Json::ParseRes::PARSE_OK);                        \
+        Array keys = expected.keys();                                                    \
+        for (size_t i = 0; i < keys.length(); i++)                                       \
+        {                                                                                \
+            EXPECT_EQ(json[keys[i].getString()] == expected[keys[i].getString()], true); \
+        }                                                                                \
+    } while (0)
+
+TEST(JsonParse, HandleObject)
+{
+    Json json;
+    Object o;
+
+    TEST_OBJECT("{}", o);
+
+    o["first name"] = "Yang";
+    TEST_OBJECT("{\"first name\" : \"Yang\"}", o);
+
+    o["last name"] = "Zhong";
+    TEST_OBJECT("{\"first name\" : \"Yang\", \"last name\" : \"Zhong\"}", o);
+
+    o["age"] = 18.0;
+    TEST_OBJECT("{\"first name\" : \"Yang\", \"last name\" : \"Zhong\", \"age\" : 18}", o);
+
+    o["age"] = 20.5;
+    TEST_OBJECT("{\"first name\" : \"Yang\", \"last name\" : \"Zhong\", \"age\" : 20}", o);
+
+    Object o1;
+    o1["last name"] = "Zhong";
+    o1["phone number"] = "xxx - xxxx - xxxx";
+    o["parent"] = o1;
+    TEST_OBJECT("{\"first name\" : \"Yang\", \"last name\" : \"Zhong\", \"age\" : 20, \"parent\" : {\"last name\" : \"Zhong\", \"phone number\" : \"xxx - xxxx - xxxx\"}}", o);
+}
