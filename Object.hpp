@@ -125,15 +125,14 @@ namespace AtomJson
         ~Object();
 
         /**
-         * @brief
+         * @brief Check if the Object is empty
          *
-         * @return true
-         * @return false
+         * @return bool
          */
         bool empty() { return size == 0; }
 
         /**
-         * @brief Get the length of the Array object
+         * @brief Get the length of the Object object
          *
          * @return size_t
          */
