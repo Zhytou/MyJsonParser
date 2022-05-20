@@ -99,6 +99,15 @@ namespace AtomJson
         char &operator[](size_t idx);
 
         /**
+         * *Overload array index operator
+         * @brief Get the char at the idx
+         *
+         * @param idx
+         * @return const char&
+         */
+        const char &operator[](size_t idx) const;
+
+        /**
          * *Overload equal to operator
          * @brief Check if every char in both of the String objects are the same
          *
@@ -143,7 +152,7 @@ namespace AtomJson
          * @param len
          * @return String&
          */
-        String &append(String &other, size_t pos = 0, size_t len = 1);
+        String &append(const String &other, size_t pos = 0, size_t len = 1);
 
         /**
          * @brief Get a std::string

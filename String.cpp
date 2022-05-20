@@ -91,6 +91,12 @@ namespace AtomJson
         return p[idx];
     }
 
+    const char &String::operator[](size_t idx) const
+    {
+        assert(idx < size);
+        return p[idx];
+    }
+
     bool String::operator==(const String &other) const
     {
         if (size != other.size)
@@ -178,7 +184,7 @@ namespace AtomJson
         return *this;
     }
 
-    String &String::append(String &other, size_t pos, size_t len)
+    String &String::append(const String &other, size_t pos, size_t len)
     {
         assert(pos + len - 1 < other.size);
         if (size + len >= capacity)

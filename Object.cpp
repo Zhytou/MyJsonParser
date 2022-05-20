@@ -159,13 +159,37 @@ namespace AtomJson
         return *(node->item.val);
     }
 
+    const Value &Object::operator[](const String &key) const
+    {
+        size_t idx = key.hashcode() % capacity;
+        Node *node = nullptr;
+        bool flag = true;
+
+        for (node = p[idx]; node != nullptr; node = node->next)
+        {
+            if (!flag && node == p[idx])
+            {
+                node = nullptr;
+                break;
+            }
+
+            flag = false;
+            if (node->item.key == key)
+            {
+                break;
+            }
+        }
+        assert(node != nullptr);
+        return *(node->item.val);
+    }
+
     bool Object::operator==(const Object &other)
     {
         // TODO:
         return false;
     }
 
-    Array Object::keys()
+    Array Object::keys() const
     {
         Array a;
         for (size_t i = 0; i < capacity; i++)
@@ -182,7 +206,7 @@ namespace AtomJson
         return std::move(a);
     }
 
-    Array Object::values()
+    Array Object::values() const
     {
         Array a;
         for (size_t i = 0; i < capacity; i++)

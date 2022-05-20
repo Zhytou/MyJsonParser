@@ -88,6 +88,12 @@ namespace AtomJson
         return p[idx];
     }
 
+    const Value &Array::operator[](size_t idx) const
+    {
+        assert(idx < size);
+        return p[idx];
+    }
+
     bool Array::operator==(const Array &other)
     {
         if (size == other.size)

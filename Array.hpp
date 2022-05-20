@@ -5,7 +5,7 @@
 
 namespace AtomJson
 {
-    struct Value;
+    class Value;
 
     class Array
     {
@@ -73,14 +73,14 @@ namespace AtomJson
          * @return true
          * @return false
          */
-        bool empty() { return size == 0; }
+        bool empty() const { return size == 0; }
 
         /**
          * @brief Get the length of the Array object
          *
          * @return size_t
          */
-        size_t length() { return size; }
+        size_t length() const { return size; }
 
         /**
          * *Overload the array index operator
@@ -90,6 +90,15 @@ namespace AtomJson
          * @return Value&
          */
         Value &operator[](size_t idx);
+
+        /**
+         * *Overload the array index operator
+         * @brief get the element in the idx position of the Array object
+         *
+         * @param idx
+         * @return const Value&
+         */
+        const Value &operator[](size_t idx) const;
 
         /**
          * @brief

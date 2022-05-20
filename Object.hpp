@@ -6,7 +6,7 @@
 
 namespace AtomJson
 {
-    struct Value;
+    class Value;
 
     struct DoubleyLinkedListNode;
     typedef DoubleyLinkedListNode Node;
@@ -129,14 +129,14 @@ namespace AtomJson
          *
          * @return bool
          */
-        bool empty() { return size == 0; }
+        bool empty() const { return size == 0; }
 
         /**
          * @brief Get the length of the Object object
          *
          * @return size_t
          */
-        size_t length() { return size; }
+        size_t length() const { return size; }
 
         /**
          * ! Be careful, calling this function automatically insert a new Item object whose key equals the param key no matter if the Item existed or not. (just like the map [] function in STL C++ library)
@@ -146,6 +146,15 @@ namespace AtomJson
          * @return Value&
          */
         Value &operator[](const String &key);
+
+        /**
+         * ! Be careful, the key must be already in the object
+         * @brief
+         *
+         * @param key
+         * @return const Value&
+         */
+        const Value &operator[](const String &key) const;
 
         /**
          * ! Be careful, this function checks if the structures and contents of the two objects are exactly the same.
@@ -161,14 +170,14 @@ namespace AtomJson
          *
          * @return Array
          */
-        Array keys();
+        Array keys() const;
 
         /**
          * @brief Get an Array of all the values in the Object
          *
          * @return Array
          */
-        Array values();
+        Array values() const;
 
     private:
         bool need_resize()
