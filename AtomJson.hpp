@@ -165,7 +165,8 @@ namespace AtomJson
             {
                 // Because the allocated dynamic memory for str/arr/obj is already freed in ~Value(), so there is nothing to do in ~SubValue()
             }
-        } val;
+        };
+        SubValue val;
         Type type;
 
         /**
@@ -477,6 +478,30 @@ namespace AtomJson
          * @return std::ostream
          */
         friend std::ostream operator<<(std::ostream &out, Value);
+
+        struct PrettifyParam
+        {
+            bool prettify;
+            size_t indentation;
+
+            PrettifyParam(bool p = false, size_t i = 0) : prettify(p), indentation(i){};
+
+            ~PrettifyParam(){};
+        };
+
+        String stringify(PrettifyParam *p);
+
+        String stringify_null(PrettifyParam *p);
+
+        String stringify_boolen(PrettifyParam *p);
+
+        String stringify_number(PrettifyParam *p);
+
+        String stringify_string(PrettifyParam *p);
+
+        String stringify_array(PrettifyParam *p);
+
+        String stringify_object(PrettifyParam *p);
     };
 
     class Json : public Value
@@ -513,6 +538,8 @@ namespace AtomJson
             ParseContext() : jsonstr(nullptr), buffer(){};
 
             ParseContext(const char *s) : jsonstr(s), buffer(){};
+
+            ~ParseContext(){};
         };
 
         /**
@@ -543,9 +570,7 @@ namespace AtomJson
          * @brief Destroy the Json object
          *
          */
-        ~Json()
-        {
-        }
+        ~Json() {}
 
         /**
          * @brief
@@ -555,7 +580,11 @@ namespace AtomJson
          */
         ParseRes parse(const char *jsonstr);
 
-        void stringify();
+        /**
+         * @brief
+         *
+         */
+        String stringify(bool prettify = true);
 
     private:
         ParseRes parse(ParseContext *c);

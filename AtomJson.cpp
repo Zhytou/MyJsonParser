@@ -228,6 +228,12 @@ namespace AtomJson
         return ret;
     }
 
+    String Json::stringify(bool prettify)
+    {
+        PrettifyParam p(prettify);
+        return Value::stringify(&p);
+    }
+
     Json::ParseRes Json::parse(ParseContext *c)
     {
         switch (*c->jsonstr)
@@ -520,4 +526,160 @@ namespace AtomJson
         }
     }
 
+    String Value::stringify(PrettifyParam *p)
+    {
+        switch (this->type)
+        {
+        case Type::BOOLEN:
+            return stringify_boolen(p);
+        case Type::NUMBER:
+            return stringify_number(p);
+        case Type::STRING:
+            return stringify_string(p);
+        case Type::ARRAY:
+            return stringify_array(p);
+        case Type::OBJECT:
+            return stringify_object(p);
+        default:
+            return stringify_null(p);
+        }
+    }
+
+    String Value::stringify_null(PrettifyParam *p)
+    {
+        assert(this->type == Type::_NULL);
+        String n;
+        if (p->prettify)
+        {
+            for (size_t i = 0; i < p->indentation; i++)
+                n.append('\t');
+        }
+        n.append("null", 0, 4);
+        return n;
+    }
+
+    String Value::stringify_boolen(PrettifyParam *p)
+    {
+        assert(this->type == Type::BOOLEN);
+        String b;
+        if (p->prettify)
+        {
+            for (size_t i = 0; i < p->indentation; i++)
+                b.append('\t');
+        }
+        if (this->isTrue())
+            b.append("true", 0, 4);
+        else
+            b.append("false", 0, 5);
+        return b;
+    }
+
+    String Value::stringify_number(PrettifyParam *p)
+    {
+        assert(this->type == Type::BOOLEN);
+        return "";
+    }
+
+    String Value::stringify_string(PrettifyParam *p)
+    {
+        assert(this->type == Type::STRING);
+        String s;
+        if (p->prettify)
+        {
+            s.append('\n');
+            for (size_t i = 0; i < p->indentation; i++)
+                s.append('\t');
+        }
+
+        s.append('\"');
+        s.append(this->val.str, 0, this->val.str.length());
+        s.append('\"');
+
+        return s;
+    }
+
+    String Value::stringify_array(PrettifyParam *p)
+    {
+        assert(this->type == Type::ARRAY);
+        String a;
+
+        if (p->prettify)
+        {
+            a.append('\n');
+            for (size_t i = 0; i < p->indentation; i++)
+                a.append('\t');
+            p->indentation += 1;
+        }
+        a.append('[');
+
+        for (size_t i = 0; i < this->val.arr.length(); i++)
+        {
+            String element = std::move(this->val.arr[i].stringify(p));
+            a.append(element, 0, element.length());
+            if (i != this->val.arr.length() - 1)
+                a.append(',');
+        }
+
+        if (p->prettify)
+        {
+            a.append('\n');
+            p->indentation -= 1;
+            for (size_t i = 0; i < p->indentation; i++)
+                a.append('\t');
+        }
+        a.append(']');
+
+        return std::move(a);
+    }
+
+    String Value::stringify_object(PrettifyParam *p)
+    {
+        assert(this->type == Type::OBJECT);
+        String o;
+        if (p->prettify)
+        {
+            o.append('\n');
+            for (size_t i = 0; i < p->indentation; i++)
+                o.append('\t');
+            p->indentation += 1;
+        }
+        o.append('{');
+
+        Array keys = std::move(this->val.obj.keys());
+        for (size_t i = 0; i < keys.length(); i++)
+        {
+            String key = std::move(keys[i].stringify(p));
+            o.append(key, 0, key.length());
+            o.append(':');
+            if (this->val.obj[key].type != Type::ARRAY && this->val.obj[key].type != Type::OBJECT)
+            {
+                bool tmp = p->prettify;
+                p->prettify = false;
+                String val = std::move(this->val.obj[key].stringify(p));
+                o.append(val, 0, val.length());
+                p->prettify = tmp;
+            }
+            else
+            {
+                p->indentation += 1;
+                String val = std::move(this->val.obj[key].stringify(p));
+                o.append(val, 0, val.length());
+                p->indentation -= 1;
+            }
+
+            if (i != keys.length() - 1)
+                o.append(',');
+        }
+
+        if (p->prettify)
+        {
+            o.append('\n');
+            p->indentation -= 1;
+            for (size_t i = 0; i < p->indentation; i++)
+                o.append('\t');
+        }
+        o.append('}');
+
+        return std::move(o);
+    }
 }
