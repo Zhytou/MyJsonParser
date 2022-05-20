@@ -115,7 +115,7 @@ namespace AtomJson
         {
             do
             {
-                if (capacity == 0)
+                if (capacity == 0 || capacity == 1)
                     capacity = 10;
                 else
                     capacity = 1.5 * capacity;
@@ -141,18 +141,55 @@ namespace AtomJson
         return *this;
     }
 
-    String &String::append(String &other, size_t pos, size_t len)
+    String &String::append(const char *other, size_t pos, size_t len)
     {
-        assert(pos + len < other.size);
+        for (size_t i = 0; i < len; i++)
+            assert(other[pos + i] != '\0');
+
         if (size + len >= capacity)
         {
             do
             {
-                if (capacity == 0)
+                if (capacity == 0 || capacity == 1)
                     capacity = 10;
                 else
                     capacity = 1.5 * capacity;
-            } while (size + 1 >= capacity);
+            } while (size + len >= capacity);
+
+            if (p)
+            {
+                char *np = new char[capacity];
+                for (size_t i = 0; i < size; i++)
+                {
+                    np[i] = p[i];
+                }
+                delete[] p;
+                p = np;
+            }
+            else
+                p = new char[capacity];
+        }
+
+        for (size_t i = 0; i < len; i++)
+        {
+            p[size + i] = other[pos + i];
+        }
+        size += len;
+        return *this;
+    }
+
+    String &String::append(String &other, size_t pos, size_t len)
+    {
+        assert(pos + len - 1 < other.size);
+        if (size + len >= capacity)
+        {
+            do
+            {
+                if (capacity == 0 || capacity == 1)
+                    capacity = 10;
+                else
+                    capacity = 1.5 * capacity;
+            } while (size + len >= capacity);
 
             if (p)
             {

@@ -126,6 +126,16 @@ namespace AtomJson
         String &append(char ch);
 
         /**
+         * @brief Add a substring of a C style string to the tail of the String object
+         *
+         * @param other
+         * @param pos
+         * @param len
+         * @return String&
+         */
+        String &append(const char *other, size_t pos = 0, size_t len = 1);
+
+        /**
          * @brief Add a substring of another String object to the tail of the String object
          *
          * @param other
