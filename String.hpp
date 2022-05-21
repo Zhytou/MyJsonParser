@@ -109,6 +109,15 @@ namespace AtomJson
 
         /**
          * *Overload equal to operator
+         * @brief Check if the String object equals to the C-style string
+         *
+         * @param other
+         * @return bool
+         */
+        bool operator==(const char *other) const;
+
+        /**
+         * *Overload equal to operator
          * @brief Check if every char in both of the String objects are the same
          *
          * @param other

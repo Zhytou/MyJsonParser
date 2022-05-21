@@ -97,6 +97,16 @@ namespace AtomJson
         return p[idx];
     }
 
+    bool String::operator==(const char *other) const
+    {
+        for (size_t i = 0; i < size; i++)
+        {
+            if (p[i] != other[i] || other[i] == '\0')
+                return false;
+        }
+        return other[size] == '\0';
+    }
+
     bool String::operator==(const String &other) const
     {
         if (size != other.size)
