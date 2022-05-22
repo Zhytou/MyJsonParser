@@ -170,7 +170,12 @@ namespace AtomJson
          */
         std::string stl_str() const
         {
-            return std::string(p);
+            std::string s;
+            for (size_t i = 0; i < size; i++)
+            {
+                s.push_back(p[i]);
+            }
+            return s;
         }
 
         /**
