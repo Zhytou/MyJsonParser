@@ -15,6 +15,50 @@
 namespace AtomJson
 {
 
+    enum ParseRes
+    {
+        PARSE_OK,
+        PARSE_EXPECT_VALUE,
+        PARSE_INVALID_VALUE,
+        PARSE_ROOT_NOT_SINGULAR,
+
+        PARSE_INVALID_ZERO_START,
+        PARSE_INVALID_SCIENTIFIC_NOTATION,
+        PARSE_NUMBER_OVERFLOW,
+
+        PARSE_MISS_QUOTATION_MARK,
+        PARSE_INVALID_STRING_CHAR,
+        PARSE_INVALID_STRING_ESCAPE,
+
+        PARSE_INVALID_COMMA,
+        PARSE_MISS_SQUARE_BRACKET,
+
+        PARSE_MISS_COLON,
+        PARSE_MISS_COMMA,
+        PARSE_MISS_BRACKET
+    };
+
+    struct ParseContext
+    {
+        const char *jsonstr;
+
+        ParseContext() : jsonstr(nullptr){};
+
+        ParseContext(const char *s) : jsonstr(s){};
+
+        ~ParseContext(){};
+    };
+
+    struct PrettifyParam
+    {
+        bool prettify;
+        size_t indentation;
+
+        PrettifyParam(bool p = false, size_t i = 0) : prettify(p), indentation(i){};
+
+        ~PrettifyParam(){};
+    };
+
     enum Type
     {
         _NULL,
@@ -29,8 +73,9 @@ namespace AtomJson
 
     typedef double Number;
 
-    struct Value
+    class Value
     {
+    public:
         union SubValue
         {
             Boolen boolen;
@@ -166,8 +211,6 @@ namespace AtomJson
                 // Because the allocated dynamic memory for str/arr/obj is already freed in ~Value(), so there is nothing to do in ~SubValue()
             }
         };
-        SubValue val;
-        Type type;
 
         /**
          * @brief Construct a new Value object
@@ -181,7 +224,7 @@ namespace AtomJson
          * @param t
          * @param b
          */
-        Value(const Boolen &b, Type t = Type::BOOLEN) : type(t), val(b) {}
+        Value(const Boolen &b, Type t) : type(Type::BOOLEN), val(b) {}
 
         /**
          * @brief Construct a new Value object
@@ -190,6 +233,14 @@ namespace AtomJson
          * @param n
          */
         Value(const Number &n, Type t = Type::NUMBER) : type(t), val(n) {}
+
+        /**
+         * @brief Construct a new Value object
+         *
+         * @param s
+         * @param t
+         */
+        Value(const char *s, Type t = Type::STRING) : type(t), val(std::move(String(s))) {}
 
         /**
          * @brief Construct a new Value object
@@ -288,23 +339,23 @@ namespace AtomJson
          *
          * @return bool
          */
-        bool isNull() { return type == Type::_NULL; }
+        bool isNull() const { return type == Type::_NULL; }
 
         /**
          * @brief
          *
          * @return bool
          */
-        bool isBoolen() { return type == Type::BOOLEN; }
+        bool isBoolen() const { return type == Type::BOOLEN; }
 
         /***/
-        bool isTrue()
+        bool isTrue() const
         {
             assert(type == Type::BOOLEN);
             return val.boolen == true;
         }
 
-        bool isFalse()
+        bool isFalse() const
         {
             assert(type == Type::BOOLEN);
             return val.boolen == false;
@@ -315,35 +366,35 @@ namespace AtomJson
          *
          * @return bool
          */
-        bool isNumber() { return type == Type::NUMBER; }
+        bool isNumber() const { return type == Type::NUMBER; }
 
         /**
          * @brief
          *
          * @return bool
          */
-        bool isString() { return type == Type::STRING; }
+        bool isString() const { return type == Type::STRING; }
 
         /**
          * @brief
          *
          * @return bool
          */
-        bool isArray() { return type == Type::ARRAY; }
+        bool isArray() const { return type == Type::ARRAY; }
 
         /**
          * @brief
          *
          * @return bool
          */
-        bool isObject() { return type == Type::OBJECT; }
+        bool isObject() const { return type == Type::OBJECT; }
 
         /**
          * @brief
          *
          * @return size_t
          */
-        size_t length()
+        size_t length() const
         {
             assert(isNull() || isString() || isArray() || isObject());
             switch (type)
@@ -372,7 +423,7 @@ namespace AtomJson
          *
          * @return Boolen&
          */
-        Boolen &getBoolen()
+        const Boolen &getBoolen() const
         {
             assert(isBoolen());
             return val.boolen;
@@ -394,7 +445,7 @@ namespace AtomJson
          *
          * @return Number&
          */
-        Number &getNumber()
+        const Number &getNumber() const
         {
             assert(isNumber());
             return val.num;
@@ -416,7 +467,7 @@ namespace AtomJson
          *
          * @return String&
          */
-        String &getString()
+        const String &getString() const
         {
             assert(isString());
             return val.str;
@@ -434,22 +485,97 @@ namespace AtomJson
         }
 
         /**
+         * @brief Get the Array object
+         *
+         * @return const Array&
+         */
+        const Array &getArray() const
+        {
+            assert(isArray());
+            return val.arr;
+        }
+
+        /**
+         * @brief Get the Object object
+         *
+         * @return const Object&
+         */
+        const Object &getObject() const
+        {
+            assert(isObject());
+            return val.obj;
+        }
+
+        /**
+         * @brief Check if the key exist
+         *
+         * @param key
+         * @return bool
+         */
+        bool exist(const String &key) const
+        {
+            assert(isObject());
+            return val.obj.exist(key);
+        }
+
+        /**
+         * @brief
+         *
+         * @return Array
+         */
+        Array keys() const
+        {
+            assert(isObject());
+            return val.obj.keys();
+        }
+
+        /**
+         * @brief
+         *
+         * @return Array
+         */
+        Array values() const
+        {
+            assert(isObject());
+            return val.obj.values();
+        }
+
+        /**
          * *Overload the index array operator
          * @brief Get the element in the idx position of the Value object only if the Value type is ARRAY
          *
          * @param idx
          * @return Value&
          */
-        Value &operator[](size_t idx);
+        Value &
+        operator[](size_t idx);
+
+        /**
+         * *Overload the index array operator
+         * @brief Get the element in the idx position of the Value object only if the Value type is ARRAY
+         *
+         * @param idx
+         * @return const Value&
+         */
+        const Value &operator[](size_t idx) const;
 
         /**
          * *Overload the reference operator
          * @brief Get the element whose key eaquls to the param in the Value object only if the Value type is OBJECT
          *
          * @param key
-         * @return Value&
+         * @return const Value&
          */
-        Value &operator[](String key);
+        Value &operator[](const String &key);
+
+        /**
+         * *Overload the reference operator
+         * @brief Get the element whose key eaquls to the param in the Value object only if the Value type is OBJECT
+         *
+         * @param key
+         * @return const Value&
+         */
+        const Value &operator[](const String &key) const;
 
         /**
          * @brief Check if the two Value objects are the same
@@ -463,8 +589,7 @@ namespace AtomJson
          * @brief Check if the two Value objects are not the same
          *
          * @param other
-         * @return true
-         * @return false
+         * @return bool
          */
         bool operator!=(const Value &other)
         {
@@ -479,117 +604,28 @@ namespace AtomJson
          */
         friend std::ostream operator<<(std::ostream &out, Value);
 
-        struct PrettifyParam
-        {
-            bool prettify;
-            size_t indentation;
-
-            PrettifyParam(bool p = false, size_t i = 0) : prettify(p), indentation(i){};
-
-            ~PrettifyParam(){};
-        };
-
-        String stringify(PrettifyParam *p);
-
-        String stringify_null(PrettifyParam *p);
-
-        String stringify_boolen(PrettifyParam *p);
-
-        String stringify_number(PrettifyParam *p);
-
-        String stringify_string(PrettifyParam *p);
-
-        String stringify_array(PrettifyParam *p);
-
-        String stringify_object(PrettifyParam *p);
-    };
-
-    class Json : public Value
-    {
-    public:
-        enum ParseRes
-        {
-            PARSE_OK,
-            PARSE_EXPECT_VALUE,
-            PARSE_INVALID_VALUE,
-            PARSE_ROOT_NOT_SINGULAR,
-
-            PARSE_INVALID_ZERO_START,
-            PARSE_INVALID_SCIENTIFIC_NOTATION,
-            PARSE_NUMBER_OVERFLOW,
-
-            PARSE_MISS_QUOTATION_MARK,
-            PARSE_INVALID_STRING_CHAR,
-            PARSE_INVALID_STRING_ESCAPE,
-
-            PARSE_INVALID_COMMA,
-            PARSE_MISS_SQUARE_BRACKET,
-
-            PARSE_MISS_COLON,
-            PARSE_MISS_COMMA,
-            PARSE_MISS_BRACKET
-        };
-
-        struct ParseContext
-        {
-            const char *jsonstr;
-            Buffer buffer;
-
-            ParseContext() : jsonstr(nullptr), buffer(){};
-
-            ParseContext(const char *s) : jsonstr(s), buffer(){};
-
-            ~ParseContext(){};
-        };
-
-        /**
-         * *Default constructor
-         * @brief Construct a new Json object
-         *
-         */
-        Json() : Value(){};
-
-        /**
-         * *Copy constructor
-         * @brief Construct a new Json object by Value object
-         *
-         * @param other
-         */
-        Json(const Value &other) : Value(other) {}
-
-        /**
-         * *Copy constructor
-         * @brief Construct a new Json object
-         *
-         * @param other
-         */
-        Json(const Json &other) : Value(other.val, other.type) {}
-
-        /**
-         * *Destructor
-         * @brief Destroy the Json object
-         *
-         */
-        ~Json() {}
-
         /**
          * @brief
          *
          * @param jsonstr
-         * @return ParseRes
+         * @return Value
          */
-        ParseRes parse(const char *jsonstr);
+        friend Value parse(const char *jsonstr);
 
         /**
          * @brief
          *
+         * @param prettify
+         * @return String
          */
-        String stringify(bool prettify = true);
+        friend String stringify(const Value &v, bool prettify);
 
     private:
         ParseRes parse(ParseContext *c);
 
-        ParseRes parse_whitespace(ParseContext *c);
+        String stringify(PrettifyParam *p) const;
+
+        friend ParseRes parse_whitespace(ParseContext *c);
 
         ParseRes parse_null(ParseContext *c);
 
@@ -602,8 +638,39 @@ namespace AtomJson
         ParseRes parse_array(ParseContext *c);
 
         ParseRes parse_object(ParseContext *c);
-    };
 
+        String stringify_null(PrettifyParam *p) const;
+
+        String stringify_boolen(PrettifyParam *p) const;
+
+        String stringify_number(PrettifyParam *p) const;
+
+        String stringify_string(PrettifyParam *p) const;
+
+        String stringify_array(PrettifyParam *p) const;
+
+        String stringify_object(PrettifyParam *p) const;
+
+        SubValue val;
+        Type type;
+    };
+    typedef Value Json;
+
+    /**
+     * @brief
+     *
+     * @param jsonstr
+     * @return Value
+     */
+    Value parse(const char *jsonstr);
+
+    /**
+     * @brief
+     *
+     * @param prettify
+     * @return String
+     */
+    String stringify(const Value &v, bool prettify = true);
 } // namespace AtomJson
 
 namespace ajson = AtomJson;
