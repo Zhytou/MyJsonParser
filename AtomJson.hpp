@@ -602,7 +602,7 @@ namespace AtomJson
          * @param out
          * @return std::ostream
          */
-        friend std::ostream operator<<(std::ostream &out, Value);
+        friend std::ostream &operator<<(std::ostream &out, Value v);
 
         /**
          * @brief

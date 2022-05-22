@@ -224,6 +224,34 @@ namespace AtomJson
         return false;
     }
 
+    std::ostream &operator<<(std::ostream &out, Value v)
+    {
+        switch (v.type)
+        {
+        case Type::BOOLEN:
+            if (v.val.boolen)
+                out << "true";
+            else
+                out << "false";
+            break;
+        case Type::NUMBER:
+            out << v.val.num;
+            break;
+        case Type::STRING:
+            out << v.val.str;
+            break;
+        case Type::ARRAY:
+            out << stringify(v, false);
+            break;
+        case Type::OBJECT:
+            out << stringify(v, false);
+            break;
+        default:
+            break;
+        }
+        return out;
+    }
+
     ParseRes parse_whitespace(ParseContext *c);
 
     Value parse(const char *jsonstr)
@@ -561,7 +589,7 @@ namespace AtomJson
                 n.append('\t');
         }
         n.append("null", 0, 4);
-        return n;
+        return std::move(n);
     }
 
     String Value::stringify_boolen(PrettifyParam *p) const
@@ -577,13 +605,21 @@ namespace AtomJson
             b.append("true", 0, 4);
         else
             b.append("false", 0, 5);
-        return b;
+        return std::move(b);
     }
 
     String Value::stringify_number(PrettifyParam *p) const
     {
-        assert(this->type == Type::BOOLEN);
-        return "";
+        assert(this->type == Type::NUMBER);
+        String n;
+        if (p->prettify)
+        {
+            for (size_t i = 0; i < p->indentation; i++)
+                n.append('\t');
+        }
+        String tmpN(std::to_string(this->val.num));
+        n.append(tmpN, 0, tmpN.length());
+        return std::move(n);
     }
 
     String Value::stringify_string(PrettifyParam *p) const
@@ -598,10 +634,11 @@ namespace AtomJson
         }
 
         s.append('\"');
-        s.append(this->val.str, 0, this->val.str.length());
+        if (this->val.str.length() >= 1)
+            s.append(this->val.str, 0, this->val.str.length());
         s.append('\"');
 
-        return s;
+        return std::move(s);
     }
 
     String Value::stringify_array(PrettifyParam *p) const
