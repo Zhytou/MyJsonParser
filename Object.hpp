@@ -163,7 +163,15 @@ namespace AtomJson
          * @param other
          * @return bool
          */
-        bool operator==(const Object &other);
+        bool operator==(const Object &other) const;
+
+        /**
+         * @brief Check if the key exist in the Object
+         *
+         * @param key
+         * @return bool
+         */
+        bool exist(const String &key) const;
 
         /**
          * @brief Get an Array of all the keys in the Object

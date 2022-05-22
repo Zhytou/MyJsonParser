@@ -137,11 +137,16 @@ namespace AtomJson
             flag = false;
             if (node->item.key == key)
             {
+                // jump out of the loop, if node is the head
+                if (node == p[idx])
+                    break;
                 // delete node and later insert it back to list in order to implenment the LRU.
                 Node *prev = node->prev, *next = node->next;
                 node->prev = nullptr;
                 node->next = nullptr;
 
+                if (prev == next && prev == node && next == node)
+                    break;
                 prev->next = next;
                 next->prev = prev;
                 break;
@@ -154,7 +159,8 @@ namespace AtomJson
             occupiedEntry += 1;
         }
 
-        p[idx] = insertDLLNode(p[idx], node);
+        if (node != p[idx])
+            p[idx] = insertDLLNode(p[idx], node);
 
         return *(node->item.val);
     }
@@ -183,10 +189,57 @@ namespace AtomJson
         return *(node->item.val);
     }
 
-    bool Object::operator==(const Object &other)
+    bool Object::operator==(const Object &other) const
     {
-        // TODO:
-        return false;
+        Array keys = other.keys();
+        for (size_t i = 0; i < keys.length(); i++)
+        {
+            String key = keys[i].getString();
+            size_t idx = key.hashcode() % capacity;
+            Node *node = nullptr;
+            bool flag = true;
+
+            for (node = p[idx]; node != nullptr; node = node->next)
+            {
+                if (!flag && node == p[idx])
+                {
+                    node = nullptr;
+                    break;
+                }
+
+                flag = false;
+                if (node->item.key == key)
+                {
+                    break;
+                }
+            }
+            if (node == nullptr || *(node->item.val) != other[key])
+                return false;
+        }
+        return true;
+    }
+
+    bool Object::exist(const String &key) const
+    {
+        size_t idx = key.hashcode() % capacity;
+        Node *node = nullptr;
+        bool flag = true;
+
+        for (node = p[idx]; node != nullptr; node = node->next)
+        {
+            if (!flag && node == p[idx])
+            {
+                node = nullptr;
+                break;
+            }
+
+            flag = false;
+            if (node->item.key == key)
+            {
+                break;
+            }
+        }
+        return node != nullptr;
     }
 
     Array Object::keys() const
