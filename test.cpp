@@ -5,24 +5,24 @@ using namespace ajson;
 
 TEST(JsonParse, HandleNull)
 {
-    Json json;
-    EXPECT_EQ(json.parse("null"), AtomJson::Json::ParseRes::PARSE_OK);
+    Json json = parse("null");
+    EXPECT_EQ(json.isNull(), true);
 }
 
 TEST(JsonParse, HandleBoolen)
 {
-    Json json;
-    EXPECT_EQ(json.parse("true"), Json::ParseRes::PARSE_OK);
+    Json json = parse("true");
     EXPECT_EQ(json.isTrue(), true);
-    EXPECT_EQ(json.parse("false"), Json::ParseRes::PARSE_OK);
+
+    json = parse("false");
     EXPECT_EQ(json.isFalse(), true);
 }
 
-#define TEST_NUMBER(jsonstr, expected)                            \
-    do                                                            \
-    {                                                             \
-        EXPECT_EQ(json.parse(jsonstr), Json::ParseRes::PARSE_OK); \
-        EXPECT_EQ(json.getNumber(), expected);                    \
+#define TEST_NUMBER(jsonstr, expected)         \
+    do                                         \
+    {                                          \
+        json = parse(jsonstr);                 \
+        EXPECT_EQ(json.getNumber(), expected); \
     } while (0)
 
 TEST(JsonParse, HandleNumber)
@@ -50,13 +50,12 @@ TEST(JsonParse, HandleNumber)
     ;
 }
 
-#define TEST_STRING(jsonstr, expected)                            \
-    do                                                            \
-    {                                                             \
-        json.parse(jsonstr);                                      \
-        EXPECT_EQ(json.parse(jsonstr), Json::ParseRes::PARSE_OK); \
-        String s = json.getString();                              \
-        EXPECT_EQ(s == expected, true);                           \
+#define TEST_STRING(jsonstr, expected)  \
+    do                                  \
+    {                                   \
+        json = parse(jsonstr);          \
+        String s = json.getString();    \
+        EXPECT_EQ(s == expected, true); \
     } while (0)
 
 TEST(JsonParse, HandleString)
@@ -67,14 +66,14 @@ TEST(JsonParse, HandleString)
     TEST_STRING("\"\\\" \\\\ \\/ \\b \\f \\n \\r \\t\"", "\" \\ / \b \f \n \r \t");
 }
 
-#define TEST_ARRAY(jsonstr, expected)                             \
-    do                                                            \
-    {                                                             \
-        EXPECT_EQ(json.parse(jsonstr), Json::ParseRes::PARSE_OK); \
-        for (size_t i = 0; i < json.length(); i++)                \
-        {                                                         \
-            EXPECT_EQ(json[i] == expected[i], true);              \
-        }                                                         \
+#define TEST_ARRAY(jsonstr, expected)                \
+    do                                               \
+    {                                                \
+        json = parse(jsonstr);                       \
+        for (size_t i = 0; i < json.length(); i++)   \
+        {                                            \
+            EXPECT_EQ(json[i] == expected[i], true); \
+        }                                            \
     } while (0)
 
 TEST(JsonParse, HandleArray)
@@ -88,21 +87,23 @@ TEST(JsonParse, HandleArray)
     TEST_ARRAY("[\"hello\",\"world\"]", a);
 
     Array a1;
-    a1.append(true);
-    a1.append(false);
+    a1.append(1);
+    a1.append(2);
     a.append(a1);
-    TEST_ARRAY("[\"hello\",\"world\",[true,false]]", a);
+    TEST_ARRAY("[\"hello\",\"world\",[1,2]]", a);
 }
 
-#define TEST_OBJECT(jsonstr, expected)                                                   \
-    do                                                                                   \
-    {                                                                                    \
-        EXPECT_EQ(json.parse(jsonstr), Json::ParseRes::PARSE_OK);                        \
-        Array keys = expected.keys();                                                    \
-        for (size_t i = 0; i < keys.length(); i++)                                       \
-        {                                                                                \
-            EXPECT_EQ(json[keys[i].getString()] == expected[keys[i].getString()], true); \
-        }                                                                                \
+#define TEST_OBJECT(jsonstr, expected)                   \
+    do                                                   \
+    {                                                    \
+        json = parse(jsonstr);                           \
+        Array keys = expected.keys();                    \
+        for (size_t i = 0; i < keys.length(); i++)       \
+        {                                                \
+            String key = keys[i].getString();            \
+            EXPECT_EQ(json.exist(key), true);            \
+            EXPECT_EQ(json[key] == expected[key], true); \
+        }                                                \
     } while (0)
 
 TEST(JsonParse, HandleObject)
@@ -122,11 +123,47 @@ TEST(JsonParse, HandleObject)
     TEST_OBJECT("{\"first name\" : \"Yang\", \"last name\" : \"Zhong\", \"age\" : 18}", o);
 
     o["age"] = 20.5;
-    TEST_OBJECT("{\"first name\" : \"Yang\", \"last name\" : \"Zhong\", \"age\" : 20}", o);
+    TEST_OBJECT("{\"first name\" : \"Yang\", \"last name\" : \"Zhong\", \"age\" : 20.5}", o);
 
     Object o1;
     o1["last name"] = "Zhong";
     o1["phone number"] = "xxx - xxxx - xxxx";
     o["parent"] = o1;
-    TEST_OBJECT("{\"first name\" : \"Yang\", \"last name\" : \"Zhong\", \"age\" : 20, \"parent\" : {\"last name\" : \"Zhong\", \"phone number\" : \"xxx - xxxx - xxxx\"}}", o);
+    TEST_OBJECT("{\"first name\" : \"Yang\", \"last name\" : \"Zhong\", \"age\" : 20.5, \"parent\" : {\"last name\" : \"Zhong\", \"phone number\" : \"xxx - xxxx - xxxx\"}}", o);
+}
+
+TEST(JsonStringify, HandleNull)
+{
+    Json json = parse("null");
+    EXPECT_EQ(json.isNull(), true);
+    EXPECT_EQ(stringify(json, false), "null");
+}
+
+TEST(JsonStringify, HandleBoolen)
+{
+    Json json;
+
+    json = parse("true");
+    EXPECT_EQ(json.isTrue(), true);
+    EXPECT_EQ(stringify(json, false), "true");
+
+    json = parse("false");
+    EXPECT_EQ(json.isFalse(), true);
+    EXPECT_EQ(stringify(json, false), "false");
+}
+
+TEST(JsonStringify, HandleNumber)
+{
+}
+
+TEST(JsonStringify, HandleString)
+{
+}
+
+TEST(JsonStringify, HandleArray)
+{
+}
+
+TEST(JsonStringify, HandleObject)
+{
 }
