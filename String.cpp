@@ -17,14 +17,22 @@ namespace AtomJson
         size = 0;
         while (other[size] != '\0')
             size += 1;
-        capacity = 1.5 * size;
-        if (size == 0)
-            p = nullptr;
-        else
+        capacity = 1.5 * size + 2;
+        p = new char[capacity];
+
+        for (size_t i = 0; i < size; i++)
+            p[i] = other[i];
+    }
+
+    String::String(const std::string &other)
+    {
+        size = other.size();
+        capacity = 1.5 * size + 2;
+        p = new char[capacity];
+
+        for (size_t i = 0; i < size; i++)
         {
-            p = new char[capacity];
-            for (size_t i = 0; i < size; i++)
-                p[i] = other[i];
+            p[i] = other[i];
         }
     }
 
@@ -121,7 +129,8 @@ namespace AtomJson
 
     std::ostream &operator<<(std::ostream &out, const String &str)
     {
-        out << str.p;
+        for (size_t i = 0; i < str.length(); i++)
+            out << str.p[i];
         return out;
     }
 

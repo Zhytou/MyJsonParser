@@ -31,6 +31,14 @@ namespace AtomJson
         String(const char *other);
 
         /**
+         * * STL string constructor
+         * @brief Construct a new String object by a '\0' terminated C style string
+         *
+         * @param other
+         */
+        String(const std::string &other);
+
+        /**
          * * Copy constructor
          * @brief Construct a new String object by another String object
          *
