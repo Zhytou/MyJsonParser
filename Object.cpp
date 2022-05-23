@@ -9,7 +9,8 @@ namespace AtomJson
     Object::Item::Item(const Item &other)
     {
         key = other.key;
-        val = new Value(*other.val);
+        if (other.val)
+            val = new Value(*other.val);
     }
 
     Object::Item::Item(Item &&other)
@@ -47,6 +48,10 @@ namespace AtomJson
         loadFactor = 0;
         capacity = INITIAL_CAPACITY;
         p = new Entry[capacity];
+
+        // the new operator does not initialize the pointer with nullptr
+        for (size_t i = 0; i < capacity; i++)
+            p[i] = nullptr;
     }
 
     Object::Object(const Object &other)
