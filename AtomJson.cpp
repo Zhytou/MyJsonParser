@@ -84,6 +84,7 @@ namespace AtomJson
 
     Value &Value::operator=(const Value &other)
     {
+        this->setNull();
         type = other.type;
         switch (type)
         {
@@ -111,6 +112,7 @@ namespace AtomJson
 
     Value &Value::operator=(Value &&other)
     {
+        this->setNull();
         type = other.type;
         switch (type)
         {
