@@ -18,7 +18,7 @@ TEST(JsonParse, HandleBoolen)
     EXPECT_EQ(json.isFalse(), true);
 }
 
-#define TEST_NUMBER(jsonstr, expected)         \
+#define TEST_PARSE_NUMBER(jsonstr, expected)   \
     do                                         \
     {                                          \
         json = parse(jsonstr);                 \
@@ -28,45 +28,45 @@ TEST(JsonParse, HandleBoolen)
 TEST(JsonParse, HandleNumber)
 {
     Json json;
-    TEST_NUMBER("0", 0.0);
-    TEST_NUMBER("-0", 0.0);
-    TEST_NUMBER("-0.0", 0.0);
-    TEST_NUMBER("1", 1);
-    TEST_NUMBER("-1", -1);
-    TEST_NUMBER("1.5", 1.5);
-    TEST_NUMBER("-1.5", -1.5);
-    TEST_NUMBER("3.1416", 3.1416);
-    TEST_NUMBER("1E10", 1E10);
-    TEST_NUMBER("1e10", 1e10);
-    TEST_NUMBER("1E+10", 1E+10);
-    TEST_NUMBER("1E-10", 1E-10);
-    TEST_NUMBER("-1E10", -1E10);
-    TEST_NUMBER("-1e10", -1e10);
-    TEST_NUMBER("-1E+10", -1E+10);
-    TEST_NUMBER("-1E-10", -1E-10);
-    TEST_NUMBER("1.234E+10", 1.234E+10);
-    TEST_NUMBER("1.234E-10", 1.234E-10);
-    TEST_NUMBER("1e-10000", 0.0);
+    TEST_PARSE_NUMBER("0", 0.0);
+    TEST_PARSE_NUMBER("-0", 0.0);
+    TEST_PARSE_NUMBER("-0.0", 0.0);
+    TEST_PARSE_NUMBER("1", 1);
+    TEST_PARSE_NUMBER("-1", -1);
+    TEST_PARSE_NUMBER("1.5", 1.5);
+    TEST_PARSE_NUMBER("-1.5", -1.5);
+    TEST_PARSE_NUMBER("3.1416", 3.1416);
+    TEST_PARSE_NUMBER("1E10", 1E10);
+    TEST_PARSE_NUMBER("1e10", 1e10);
+    TEST_PARSE_NUMBER("1E+10", 1E+10);
+    TEST_PARSE_NUMBER("1E-10", 1E-10);
+    TEST_PARSE_NUMBER("-1E10", -1E10);
+    TEST_PARSE_NUMBER("-1e10", -1e10);
+    TEST_PARSE_NUMBER("-1E+10", -1E+10);
+    TEST_PARSE_NUMBER("-1E-10", -1E-10);
+    TEST_PARSE_NUMBER("1.234E+10", 1.234E+10);
+    TEST_PARSE_NUMBER("1.234E-10", 1.234E-10);
+    TEST_PARSE_NUMBER("1e-10000", 0.0);
     ;
 }
 
-#define TEST_STRING(jsonstr, expected)  \
-    do                                  \
-    {                                   \
-        json = parse(jsonstr);          \
-        String s = json.getString();    \
-        EXPECT_EQ(s == expected, true); \
+#define TEST_PARSE_STRING(jsonstr, expected) \
+    do                                       \
+    {                                        \
+        json = parse(jsonstr);               \
+        String s = json.getString();         \
+        EXPECT_EQ(s == expected, true);      \
     } while (0)
 
 TEST(JsonParse, HandleString)
 {
     Json json;
-    TEST_STRING("\"\"", "");
-    TEST_STRING("\"this is a string\"", "this is a string");
-    TEST_STRING("\"\\\" \\\\ \\/ \\b \\f \\n \\r \\t\"", "\" \\ / \b \f \n \r \t");
+    TEST_PARSE_STRING("\"\"", "");
+    TEST_PARSE_STRING("\"this is a string\"", "this is a string");
+    TEST_PARSE_STRING("\"\\\" \\\\ \\/ \\b \\f \\n \\r \\t\"", "\" \\ / \b \f \n \r \t");
 }
 
-#define TEST_ARRAY(jsonstr, expected)                \
+#define TEST_PARSE_ARRAY(jsonstr, expected)          \
     do                                               \
     {                                                \
         json = parse(jsonstr);                       \
@@ -80,20 +80,20 @@ TEST(JsonParse, HandleArray)
 {
     Json json;
     Array a;
-    TEST_ARRAY("[]", a);
+    TEST_PARSE_ARRAY("[]", a);
 
     a.append(String("hello"));
     a.append(String("world"));
-    TEST_ARRAY("[\"hello\",\"world\"]", a);
+    TEST_PARSE_ARRAY("[\"hello\",\"world\"]", a);
 
     Array a1;
     a1.append(1);
     a1.append(2);
     a.append(a1);
-    TEST_ARRAY("[\"hello\",\"world\",[1,2]]", a);
+    TEST_PARSE_ARRAY("[\"hello\",\"world\",[1,2]]", a);
 }
 
-#define TEST_OBJECT(jsonstr, expected)                   \
+#define TEST_PARSE_OBJECT(jsonstr, expected)             \
     do                                                   \
     {                                                    \
         json = parse(jsonstr);                           \
@@ -111,25 +111,25 @@ TEST(JsonParse, HandleObject)
     Json json;
     Object o;
 
-    TEST_OBJECT("{}", o);
+    TEST_PARSE_OBJECT("{}", o);
 
     o["first name"] = "Yang";
-    TEST_OBJECT("{\"first name\" : \"Yang\"}", o);
+    TEST_PARSE_OBJECT("{\"first name\" : \"Yang\"}", o);
 
     o["last name"] = "Zhong";
-    TEST_OBJECT("{\"first name\" : \"Yang\", \"last name\" : \"Zhong\"}", o);
+    TEST_PARSE_OBJECT("{\"first name\" : \"Yang\", \"last name\" : \"Zhong\"}", o);
 
     o["age"] = 18.0;
-    TEST_OBJECT("{\"first name\" : \"Yang\", \"last name\" : \"Zhong\", \"age\" : 18}", o);
+    TEST_PARSE_OBJECT("{\"first name\" : \"Yang\", \"last name\" : \"Zhong\", \"age\" : 18}", o);
 
     o["age"] = 20.5;
-    TEST_OBJECT("{\"first name\" : \"Yang\", \"last name\" : \"Zhong\", \"age\" : 20.5}", o);
+    TEST_PARSE_OBJECT("{\"first name\" : \"Yang\", \"last name\" : \"Zhong\", \"age\" : 20.5}", o);
 
     Object o1;
     o1["last name"] = "Zhong";
     o1["phone number"] = "xxx - xxxx - xxxx";
     o["parent"] = o1;
-    TEST_OBJECT("{\"first name\" : \"Yang\", \"last name\" : \"Zhong\", \"age\" : 20.5, \"parent\" : {\"last name\" : \"Zhong\", \"phone number\" : \"xxx - xxxx - xxxx\"}}", o);
+    TEST_PARSE_OBJECT("{\"first name\" : \"Yang\", \"last name\" : \"Zhong\", \"age\" : 20.5, \"parent\" : {\"last name\" : \"Zhong\", \"phone number\" : \"xxx - xxxx - xxxx\"}}", o);
 }
 
 TEST(JsonStringify, HandleNull)
@@ -152,18 +152,59 @@ TEST(JsonStringify, HandleBoolen)
     EXPECT_EQ(stringify(json, false), "false");
 }
 
-TEST(JsonStringify, HandleNumber)
-{
-}
+TEST(JsonStringify, HandleNumber) {}
+
+#define TEST_STRINGIFY_STRING(jsonstr, expected)        \
+    do                                                  \
+    {                                                   \
+        json = parse(jsonstr);                          \
+        EXPECT_EQ(json.isString(), true);               \
+        str = expected;                                 \
+        EXPECT_EQ(stringify(json, false) == str, true); \
+    } while (0)
 
 TEST(JsonStringify, HandleString)
 {
+    Json json;
+    String str;
+    TEST_STRINGIFY_STRING("\"\"", "\"\"");
+    TEST_STRINGIFY_STRING("\"hello world\"", "\"hello world\"");
+    TEST_STRINGIFY_STRING("\"\\\" \\\\ \\/ \\b \\f \\n \\r \\t\"", "\"\" \\ / \b \f \n \r \t\"");
 }
+
+#define TEST_STRINGIFY_ARRAY(jsonstr, expected)         \
+    do                                                  \
+    {                                                   \
+        json = parse(jsonstr);                          \
+        EXPECT_EQ(json.isArray(), true);                \
+        str = expected;                                 \
+        EXPECT_EQ(stringify(json, false) == str, true); \
+    } while (0)
 
 TEST(JsonStringify, HandleArray)
 {
+    Json json;
+    String str;
+    TEST_STRINGIFY_ARRAY("[]", "[]");
+    TEST_STRINGIFY_ARRAY("[true,false]", "[true,false]");
+    TEST_STRINGIFY_ARRAY("[1,2,3,1.0,2.5,4.8]", "[1,2,3,1.0,2.5,4.8]");
+    TEST_STRINGIFY_ARRAY("[\"\", \"this\", \"is\", \"a\", \"string\"]", "[\"\",\"this\",\"is\",\"a\",\"string\"]");
+    TEST_STRINGIFY_ARRAY("[1,2,3,[true,false]]", "[1,2,3,[true,false]]");
 }
+
+#define TEST_STRINGIFY_OBJECT(jsonstr, expected)        \
+    do                                                  \
+    {                                                   \
+        json = parse(jsonstr);                          \
+        EXPECT_EQ(json.isObject(), true);               \
+        str = expected;                                 \
+        EXPECT_EQ(stringify(json, false) == str, true); \
+    } while (0)
 
 TEST(JsonStringify, HandleObject)
 {
+    Json json;
+    String str;
+    TEST_STRINGIFY_OBJECT("{}", "{}");
+    TEST_STRINGIFY_OBJECT("{}", "{}");
 }
