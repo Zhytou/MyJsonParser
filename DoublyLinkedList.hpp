@@ -30,6 +30,25 @@ namespace AtomJson
         DoubleyLinkedListNode(const String &k, Value *v = nullptr) : prev(nullptr), next(nullptr), item(k, v) {}
 
         /**
+         * *Copy constructor
+         * !Only copy the item
+         * @brief Construct a new Doubley Linked List Node object
+         *
+         * @param other
+         */
+        DoubleyLinkedListNode(const DoubleyLinkedListNode &other) : item(other.item), prev(nullptr), next(nullptr) {}
+
+        /**
+         * *Move constructor
+         * !Only copy the item
+         * TODO: check the move semantics
+         * @brief Construct a new Doubley Linked List Node object
+         *
+         * @param other
+         */
+        DoubleyLinkedListNode(DoubleyLinkedListNode &&other) : item(std::move(other.item)), prev(nullptr), next(nullptr) {}
+
+        /**
          * *Destructor
          * @brief Destroy the Doubley Linked List Node object
          *
