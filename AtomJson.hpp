@@ -132,7 +132,7 @@ namespace AtomJson
             SubValue(String &&s)
             {
                 std::memset(this, 0, sizeof(SubValue));
-                str = s;
+                str = std::move(s);
             }
 
             /**
@@ -154,7 +154,7 @@ namespace AtomJson
             SubValue(Array &&a)
             {
                 std::memset(this, 0, sizeof(SubValue));
-                arr = a;
+                arr = std::move(a);
             }
 
             /**
@@ -176,7 +176,7 @@ namespace AtomJson
             SubValue(Object &&o)
             {
                 std::memset(this, 0, sizeof(SubValue));
-                obj = o;
+                obj = std::move(o);
             }
 
             SubValue(const SubValue &other) = delete;
