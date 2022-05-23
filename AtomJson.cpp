@@ -269,12 +269,13 @@ namespace AtomJson
             if (*c.jsonstr != '\0')
                 ret = ParseRes::PARSE_ROOT_NOT_SINGULAR;
         }
+        assert(ret == ParseRes::PARSE_OK);
         return v;
     }
 
     String stringify(const Value &v, bool prettify)
     {
-        PrettifyParam p(prettify);
+        StringifyParam p(prettify);
         return v.stringify(&p);
     }
 
@@ -462,16 +463,16 @@ namespace AtomJson
                     s.append('\t');
                     break;
                 default:
-                    return ParseRes::PARSE_INVALID_STRING_ESCAPE;
+                    return ParseRes::PARSE_STRING_INVALID_STRING_ESCAPE;
                 }
                 break;
             }
             case '\0':
-                return ParseRes::PARSE_MISS_QUOTATION_MARK;
+                return ParseRes::PARSE_STRING_MISS_QUOTATION_MARK;
             default:
                 if ((unsigned char)ch < 0x20)
                 {
-                    return ParseRes::PARSE_INVALID_STRING_CHAR;
+                    return ParseRes::PARSE_STRING_INVALID_STRING_CHAR;
                 }
                 s.append(ch);
             }
@@ -484,7 +485,7 @@ namespace AtomJson
         Array arr;
 
         // avoid the cases like this [ element , ] or [ , ]
-        bool valuePushed = false;
+        bool elementPush = false;
 
         c->jsonstr += 1;
         while (1)
@@ -494,20 +495,20 @@ namespace AtomJson
             {
             case ']':
                 // avoid the cases like this [ element , ] and allow [ ]
-                if (!arr.empty() && !valuePushed)
-                    return ParseRes::PARSE_INVALID_COMMA;
+                if (!arr.empty() && !elementPush)
+                    return ParseRes::PARSE_ARRAY_INVALID_COMMA;
 
                 this->val = std::move(arr);
                 this->type = Type::ARRAY;
                 return ParseRes::PARSE_OK;
             case ',':
                 // avoid the cases like this [ , element ]
-                if (!valuePushed)
-                    return ParseRes::PARSE_INVALID_COMMA;
-                valuePushed = false;
+                if (!elementPush)
+                    return ParseRes::PARSE_ARRAY_INVALID_COMMA;
+                elementPush = false;
                 break;
             case '\0':
-                return ParseRes::PARSE_MISS_SQUARE_BRACKET;
+                return ParseRes::PARSE_ARRAY_MISS_SQUARE_BRACKET;
             default:
                 // c->jsonstr -= 1 is to make the jsonstr stay at 'n' or 't' or 'f' or '0 - 9' or '\"' or '[' or '{'
                 c->jsonstr -= 1;
@@ -515,7 +516,7 @@ namespace AtomJson
                 if ((ret = element.parse(c)) != ParseRes::PARSE_OK)
                     return ret;
                 arr.append(std::move(element));
-                valuePushed = true;
+                elementPush = true;
             }
         }
     }
@@ -525,44 +526,56 @@ namespace AtomJson
         ParseRes ret;
         Object obj;
 
+        Value key, value;
+        // avoid the cases like this { item , } or { , }
+        bool itemPushed = false;
+
         c->jsonstr += 1;
         while (1)
         {
-            Value key, value;
-
             parse_whitespace(c);
-            if ((ret = key.parse_string(c)) != ParseRes::PARSE_OK)
-                return ret;
-
-            parse_whitespace(c);
-            if (*c->jsonstr != ':')
-                return ParseRes::PARSE_MISS_COLON;
-            c->jsonstr += 1;
-
-            parse_whitespace(c);
-            if ((ret = value.parse(c)) != ParseRes::PARSE_OK)
-                return ret;
-            obj[key.getString()] = std::move(value);
-
-            parse_whitespace(c);
-            if (*c->jsonstr == '\0')
-                return ParseRes::PARSE_MISS_BRACKET;
-
-            if (*c->jsonstr == '}')
+            switch (*c->jsonstr)
             {
+            case '\0':
+                return ParseRes::PARSE_OBJECT_MISS_BRACKET;
+            case '}':
                 c->jsonstr += 1;
+
+                // avoid the cases like this { item , }
+                if (!itemPushed && !obj.empty())
+                    return ParseRes::PARSE_OBJECT_INVALID_COMMA;
 
                 this->val = std::move(obj);
                 this->type = Type::OBJECT;
                 return ParseRes::PARSE_OK;
+            case '\"':
+                if ((ret = key.parse_string(c)) != ParseRes::PARSE_OK)
+                    return ret;
+
+                parse_whitespace(c);
+                if (*c->jsonstr != ':')
+                    return ParseRes::PARSE_OBJECT_MISS_COLON;
+                c->jsonstr += 1;
+
+                parse_whitespace(c);
+                if ((ret = value.parse(c)) != ParseRes::PARSE_OK)
+                    return ret;
+                obj[key.getString()] = std::move(value);
+                itemPushed = true;
+                break;
+            case ',':
+                // avoid the cases like this { , }
+                if (!itemPushed)
+                    return ParseRes::PARSE_OBJECT_INVALID_COMMA;
+                c->jsonstr += 1;
+                break;
+            default:
+                return ParseRes::PARSE_OBJECT_INVALID_VALUE;
             }
-            if (*c->jsonstr != ',')
-                return ParseRes::PARSE_MISS_COMMA;
-            c->jsonstr += 1;
         }
     }
 
-    String Value::stringify(PrettifyParam *p) const
+    String Value::stringify(StringifyParam *p) const
     {
         switch (this->type)
         {
@@ -581,7 +594,7 @@ namespace AtomJson
         }
     }
 
-    String Value::stringify_null(PrettifyParam *p) const
+    String Value::stringify_null(StringifyParam *p) const
     {
         assert(this->type == Type::_NULL);
         String n;
@@ -594,7 +607,7 @@ namespace AtomJson
         return std::move(n);
     }
 
-    String Value::stringify_boolen(PrettifyParam *p) const
+    String Value::stringify_boolen(StringifyParam *p) const
     {
         assert(this->type == Type::BOOLEN);
         String b;
@@ -610,7 +623,7 @@ namespace AtomJson
         return std::move(b);
     }
 
-    String Value::stringify_number(PrettifyParam *p) const
+    String Value::stringify_number(StringifyParam *p) const
     {
         assert(this->type == Type::NUMBER);
         String n;
@@ -624,7 +637,7 @@ namespace AtomJson
         return std::move(n);
     }
 
-    String Value::stringify_string(PrettifyParam *p) const
+    String Value::stringify_string(StringifyParam *p) const
     {
         assert(this->type == Type::STRING);
         String s;
@@ -643,7 +656,7 @@ namespace AtomJson
         return std::move(s);
     }
 
-    String Value::stringify_array(PrettifyParam *p) const
+    String Value::stringify_array(StringifyParam *p) const
     {
         assert(this->type == Type::ARRAY);
         String a;
@@ -677,7 +690,7 @@ namespace AtomJson
         return std::move(a);
     }
 
-    String Value::stringify_object(PrettifyParam *p) const
+    String Value::stringify_object(StringifyParam *p) const
     {
         assert(this->type == Type::OBJECT);
         String o;
