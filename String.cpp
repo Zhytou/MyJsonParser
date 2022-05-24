@@ -127,6 +127,37 @@ namespace AtomJson
         return true;
     }
 
+    String &String::operator+=(const String &other)
+    {
+        if (size + other.size > capacity)
+        {
+            do
+            {
+                capacity = 1.5 * capacity + 2;
+            } while (size + other.size >= capacity);
+
+            if (p)
+            {
+                char *np = new char[capacity];
+                for (size_t i = 0; i < size; i++)
+                {
+                    np[i] = p[i];
+                }
+                delete[] p;
+                p = np;
+            }
+            else
+                p = new char[capacity];
+        }
+
+        for (size_t i = 0; i < other.size; i++)
+        {
+            p[size + i] = other[i];
+        }
+        size += other.size;
+        return *this;
+    }
+
     std::ostream &operator<<(std::ostream &out, const String &str)
     {
         for (size_t i = 0; i < str.length(); i++)
@@ -140,10 +171,7 @@ namespace AtomJson
         {
             do
             {
-                if (capacity == 0 || capacity == 1)
-                    capacity = 10;
-                else
-                    capacity = 1.5 * capacity;
+                capacity = 1.5 * capacity + 2;
             } while (size + 1 >= capacity);
 
             if (p)
@@ -175,10 +203,7 @@ namespace AtomJson
         {
             do
             {
-                if (capacity == 0 || capacity == 1)
-                    capacity = 10;
-                else
-                    capacity = 1.5 * capacity;
+                capacity = 1.5 * capacity + 2;
             } while (size + len >= capacity);
 
             if (p)
@@ -210,10 +235,7 @@ namespace AtomJson
         {
             do
             {
-                if (capacity == 0 || capacity == 1)
-                    capacity = 10;
-                else
-                    capacity = 1.5 * capacity;
+                capacity = 1.5 * capacity + 2;
             } while (size + len >= capacity);
 
             if (p)

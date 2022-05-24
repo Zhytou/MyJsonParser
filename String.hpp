@@ -134,6 +134,14 @@ namespace AtomJson
         bool operator==(const String &other) const;
 
         /**
+         * @brief
+         *
+         * @param other
+         * @return String&
+         */
+        String &operator+=(const String &other);
+
+        /**
          * *Overload the output operator
          * @brief Insert the String object into the standard template library outstream
          *
