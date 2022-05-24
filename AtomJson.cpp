@@ -226,7 +226,7 @@ namespace AtomJson
         return false;
     }
 
-    std::ostream &operator<<(std::ostream &out, Value v)
+    std::ostream &operator<<(std::ostream &out, const Value &v)
     {
         switch (v.type)
         {
@@ -273,9 +273,9 @@ namespace AtomJson
         return v;
     }
 
-    String stringify(const Value &v, bool prettify)
+    String stringify(const Value &v, bool prettify, bool scientificNotation, bool customize, size_t customPrecision, bool keepEscape)
     {
-        StringifyParam p(prettify);
+        StringifyParam p(prettify, scientificNotation, customize, customPrecision, keepEscape);
         return v.stringify(&p);
     }
 
@@ -407,14 +407,23 @@ namespace AtomJson
         }
 
         errno = 0;
-        double n = strtod(c->jsonstr, NULL);
+        long l;
+        double d;
+        if (isFloatPoint)
+            d = strtod(c->jsonstr, NULL);
 
-        if (errno == ERANGE && (n == HUGE_VAL || n == -HUGE_VAL))
+        else
+            l = strtol(c->jsonstr, NULL, 10);
+
+        if (errno == ERANGE && (d == HUGE_VAL || d == -HUGE_VAL))
             return ParseRes::PARSE_NUMBER_OVERFLOW;
 
         c->jsonstr = p;
         this->type = Type::NUMBER;
-        this->val.num = n;
+        if (isFloatPoint)
+            this->val.num = d;
+        else
+            this->val.num = l;
         return ParseRes::PARSE_OK;
     }
 
@@ -632,8 +641,8 @@ namespace AtomJson
             for (size_t i = 0; i < p->indentation; i++)
                 n.append('\t');
         }
-        String tmpN(std::to_string(this->val.num));
-        n.append(tmpN, 0, tmpN.length());
+
+        n += this->val.num.to_str(p->scientificNotation, p->customize, p->customPrecision);
         return std::move(n);
     }
 
@@ -649,8 +658,52 @@ namespace AtomJson
         }
 
         s.append('\"');
-        if (this->val.str.length() >= 1)
-            s.append(this->val.str, 0, this->val.str.length());
+        if (p->keepEscape)
+        {
+            for (size_t i = 0; i < this->val.str.length(); i++)
+            {
+                char ch = this->val.str[i];
+                switch (ch)
+                {
+                case '\\':
+                    s.append('\\');
+                    s.append('\\');
+                    break;
+                case '/':
+                    s.append('\\');
+                    s.append('/');
+                    break;
+                case '\b':
+                    s.append('\\');
+                    s.append('b');
+                    break;
+                case '\f':
+                    s.append('\\');
+                    s.append('f');
+                    break;
+                case '\n':
+                    s.append('\\');
+                    s.append('n');
+                    break;
+                case '\r':
+                    s.append('\\');
+                    s.append('r');
+                    break;
+                case '\t':
+                    s.append('\\');
+                    s.append('t');
+                    break;
+                default:
+                    s.append(ch);
+                    break;
+                }
+            }
+        }
+        else
+        {
+            if (this->val.str.length() >= 1)
+                s.append(this->val.str, 0, this->val.str.length());
+        }
         s.append('\"');
 
         return std::move(s);
@@ -672,6 +725,8 @@ namespace AtomJson
 
         for (size_t i = 0; i < this->val.arr.length(); i++)
         {
+            if (p->prettify)
+                a.append('\n');
             String element = std::move(this->val.arr[i].stringify(p));
             a.append(element, 0, element.length());
             if (i != this->val.arr.length() - 1)
