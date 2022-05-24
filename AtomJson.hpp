@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 
+#include "Number.hpp"
 #include "String.hpp"
 #include "Array.hpp"
 #include "Object.hpp"
@@ -26,16 +27,17 @@ namespace AtomJson
         PARSE_INVALID_SCIENTIFIC_NOTATION,
         PARSE_NUMBER_OVERFLOW,
 
-        PARSE_MISS_QUOTATION_MARK,
-        PARSE_INVALID_STRING_CHAR,
-        PARSE_INVALID_STRING_ESCAPE,
+        PARSE_STRING_MISS_QUOTATION_MARK,
+        PARSE_STRING_INVALID_STRING_CHAR,
+        PARSE_STRING_INVALID_STRING_ESCAPE,
 
-        PARSE_INVALID_COMMA,
-        PARSE_MISS_SQUARE_BRACKET,
+        PARSE_ARRAY_INVALID_COMMA,
+        PARSE_ARRAY_MISS_SQUARE_BRACKET,
 
-        PARSE_MISS_COLON,
-        PARSE_MISS_COMMA,
-        PARSE_MISS_BRACKET
+        PARSE_OBJECT_MISS_COLON,
+        PARSE_OBJECT_INVALID_COMMA,
+        PARSE_OBJECT_INVALID_VALUE,
+        PARSE_OBJECT_MISS_BRACKET
     };
 
     struct ParseContext
@@ -49,14 +51,23 @@ namespace AtomJson
         ~ParseContext(){};
     };
 
-    struct PrettifyParam
+    struct StringifyParam
     {
+        /** the prettify concerning params **/
         bool prettify;
         size_t indentation;
 
-        PrettifyParam(bool p = false, size_t i = 0) : prettify(p), indentation(i){};
+        /** the num to string concerning params **/
+        bool scientificNotation;
+        bool customize;
+        size_t customPrecision;
 
-        ~PrettifyParam(){};
+        /** the string to string concerning params **/
+        bool keepEscape;
+
+        StringifyParam(bool p = false, bool s = false, bool c = false, size_t cp = 0, bool k = false) : prettify(p), indentation(0), scientificNotation(s), customize(c), customPrecision(cp), keepEscape(k){};
+
+        ~StringifyParam(){};
     };
 
     enum Type
@@ -71,11 +82,9 @@ namespace AtomJson
 
     typedef bool Boolen;
 
-    typedef double Number;
-
     class Value
     {
-    public:
+
         union SubValue
         {
             Boolen boolen;
@@ -204,14 +213,12 @@ namespace AtomJson
 
             /**
              * @brief Destroy the Sub Value object
-             *
+             * Because the allocated dynamic memory for str/arr/obj is already freed in ~Value(), so there is nothing to do in ~SubValue()
              */
-            ~SubValue()
-            {
-                // Because the allocated dynamic memory for str/arr/obj is already freed in ~Value(), so there is nothing to do in ~SubValue()
-            }
+            ~SubValue() {}
         };
 
+    public:
         /**
          * @brief Construct a new Value object
          *
@@ -225,6 +232,54 @@ namespace AtomJson
          * @param b
          */
         Value(const Boolen &b, Type t) : type(Type::BOOLEN), val(b) {}
+
+        /**
+         * @brief Construct a new Value object
+         *
+         * @param t
+         * @param i
+         */
+        Value(const int &i, Type t = Type::NUMBER) : type(t), val(Number(i)) {}
+
+        /**
+         * @brief Construct a new Value object
+         *
+         * @param t
+         * @param l
+         */
+        Value(const long &l, Type t = Type::NUMBER) : type(t), val(Number(l)) {}
+
+        /**
+         * @brief Construct a new Value object
+         *
+         * @param t
+         * @param u
+         */
+        Value(const unsigned &u, Type t = Type::NUMBER) : type(t), val(Number(u)) {}
+
+        /**
+         * @brief Construct a new Value object
+         *
+         * @param t
+         * @param ul
+         */
+        Value(const unsigned long &ul, Type t = Type::NUMBER) : type(t), val(Number(ul)) {}
+
+        /**
+         * @brief Construct a new Value object
+         *
+         * @param t
+         * @param f
+         */
+        Value(const float &f, Type t = Type::NUMBER) : type(t), val(Number(f)) {}
+
+        /**
+         * @brief Construct a new Value object
+         *
+         * @param t
+         * @param d
+         */
+        Value(const double &d, Type t = Type::NUMBER) : type(t), val(Number(d)) {}
 
         /**
          * @brief Construct a new Value object
@@ -339,14 +394,20 @@ namespace AtomJson
          *
          * @return bool
          */
-        bool isNull() const { return type == Type::_NULL; }
+        bool isNull() const
+        {
+            return type == Type::_NULL;
+        }
 
         /**
          * @brief
          *
          * @return bool
          */
-        bool isBoolen() const { return type == Type::BOOLEN; }
+        bool isBoolen() const
+        {
+            return type == Type::BOOLEN;
+        }
 
         /***/
         bool isTrue() const
@@ -366,28 +427,40 @@ namespace AtomJson
          *
          * @return bool
          */
-        bool isNumber() const { return type == Type::NUMBER; }
+        bool isNumber() const
+        {
+            return type == Type::NUMBER;
+        }
 
         /**
          * @brief
          *
          * @return bool
          */
-        bool isString() const { return type == Type::STRING; }
+        bool isString() const
+        {
+            return type == Type::STRING;
+        }
 
         /**
          * @brief
          *
          * @return bool
          */
-        bool isArray() const { return type == Type::ARRAY; }
+        bool isArray() const
+        {
+            return type == Type::ARRAY;
+        }
 
         /**
          * @brief
          *
          * @return bool
          */
-        bool isObject() const { return type == Type::OBJECT; }
+        bool isObject() const
+        {
+            return type == Type::OBJECT;
+        }
 
         /**
          * @brief
@@ -602,7 +675,7 @@ namespace AtomJson
          * @param out
          * @return std::ostream
          */
-        friend std::ostream &operator<<(std::ostream &out, Value v);
+        friend std::ostream &operator<<(std::ostream &out, const Value &v);
 
         /**
          * @brief
@@ -618,12 +691,12 @@ namespace AtomJson
          * @param prettify
          * @return String
          */
-        friend String stringify(const Value &v, bool prettify);
+        friend String stringify(const Value &v, bool prettify, bool scientificNotation, bool customize, size_t customPrecision, bool keepEscape);
 
     private:
         ParseRes parse(ParseContext *c);
 
-        String stringify(PrettifyParam *p) const;
+        String stringify(StringifyParam *p) const;
 
         friend ParseRes parse_whitespace(ParseContext *c);
 
@@ -639,17 +712,17 @@ namespace AtomJson
 
         ParseRes parse_object(ParseContext *c);
 
-        String stringify_null(PrettifyParam *p) const;
+        String stringify_null(StringifyParam *p) const;
 
-        String stringify_boolen(PrettifyParam *p) const;
+        String stringify_boolen(StringifyParam *p) const;
 
-        String stringify_number(PrettifyParam *p) const;
+        String stringify_number(StringifyParam *p) const;
 
-        String stringify_string(PrettifyParam *p) const;
+        String stringify_string(StringifyParam *p) const;
 
-        String stringify_array(PrettifyParam *p) const;
+        String stringify_array(StringifyParam *p) const;
 
-        String stringify_object(PrettifyParam *p) const;
+        String stringify_object(StringifyParam *p) const;
 
         SubValue val;
         Type type;
@@ -670,7 +743,7 @@ namespace AtomJson
      * @param prettify
      * @return String
      */
-    String stringify(const Value &v, bool prettify = true);
+    String stringify(const Value &v, bool prettify = true, bool scientificNotation = false, bool customize = false, size_t customPrecision = 0, bool keepEscape = false);
 } // namespace AtomJson
 
 namespace ajson = AtomJson;
