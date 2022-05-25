@@ -11,7 +11,6 @@
 #include "String.hpp"
 #include "Array.hpp"
 #include "Object.hpp"
-#include "Buffer.hpp"
 
 namespace AtomJson
 {
@@ -59,13 +58,12 @@ namespace AtomJson
 
         /** the num to string concerning params **/
         bool scientificNotation;
-        bool customize;
         size_t customPrecision;
 
         /** the string to string concerning params **/
         bool keepEscape;
 
-        StringifyParam(bool p = false, bool s = false, bool c = false, size_t cp = 0, bool k = false) : prettify(p), indentation(0), scientificNotation(s), customize(c), customPrecision(cp), keepEscape(k){};
+        StringifyParam(bool p = false, bool s = false, size_t cp = 0, bool k = false) : prettify(p), indentation(0), scientificNotation(s), customPrecision(cp), keepEscape(k){};
 
         ~StringifyParam(){};
     };
@@ -691,7 +689,7 @@ namespace AtomJson
          * @param prettify
          * @return String
          */
-        friend String stringify(const Value &v, bool prettify, bool scientificNotation, bool customize, size_t customPrecision, bool keepEscape);
+        friend String stringify(const Value &v, bool prettify, bool scientificNotation, size_t customPrecision, bool keepEscape);
 
     private:
         ParseRes parse(ParseContext *c);
@@ -740,10 +738,14 @@ namespace AtomJson
     /**
      * @brief
      *
+     * @param v
      * @param prettify
+     * @param scientificNotation
+     * @param customPrecision
+     * @param keepEscape
      * @return String
      */
-    String stringify(const Value &v, bool prettify = true, bool scientificNotation = false, bool customize = false, size_t customPrecision = 0, bool keepEscape = false);
+    String stringify(const Value &v, bool prettify = true, bool scientificNotation = false, size_t customPrecision = 2, bool keepEscape = false);
 } // namespace AtomJson
 
 namespace ajson = AtomJson;

@@ -273,9 +273,9 @@ namespace AtomJson
         return v;
     }
 
-    String stringify(const Value &v, bool prettify, bool scientificNotation, bool customize, size_t customPrecision, bool keepEscape)
+    String stringify(const Value &v, bool prettify, bool scientificNotation, size_t customPrecision, bool keepEscape)
     {
-        StringifyParam p(prettify, scientificNotation, customize, customPrecision, keepEscape);
+        StringifyParam p(prettify, scientificNotation, customPrecision, keepEscape);
         return v.stringify(&p);
     }
 
@@ -642,7 +642,7 @@ namespace AtomJson
                 n.append('\t');
         }
 
-        n += this->val.num.to_str(p->scientificNotation, p->customize, p->customPrecision);
+        n += this->val.num.to_str(p->scientificNotation, p->customPrecision);
         return std::move(n);
     }
 

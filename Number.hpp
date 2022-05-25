@@ -174,7 +174,7 @@ namespace AtomJson
          * @param customPrecision
          * @return String
          */
-        String to_str(bool scientificNotation, bool customize, size_t customPrecision = 0) const;
+        String to_str(bool scientificNotation, size_t customPrecision = 2) const;
 
         /**
          * *Overload the output operator

@@ -33,7 +33,7 @@ namespace AtomJson
         }
     }
 
-    String Number::to_str(bool scientificNotation, bool customize, size_t customPrecision) const
+    String Number::to_str(bool scientificNotation, size_t customPrecision) const
     {
         std::stringstream ss;
         std::string s;
@@ -53,11 +53,9 @@ namespace AtomJson
             else
             {
                 // TODO: how to make the big number output in fixed point format by default
-                if (customize)
-                {
-                    ss << std::fixed;
-                    ss.precision(customPrecision);
-                }
+                // * the percision is 2 by default
+                ss << std::fixed;
+                ss.precision(customPrecision);
             }
             ss << num.d;
             s = ss.str();
