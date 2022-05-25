@@ -71,21 +71,19 @@ namespace AtomJson
     enum Type
     {
         _NULL,
-        BOOLEN,
+        TRUE,
+        FALSE,
         NUMBER,
         STRING,
         ARRAY,
         OBJECT
     };
 
-    typedef bool Boolen;
-
     class Value
     {
 
         union SubValue
         {
-            Boolen boolen;
             Number num;
             String str;
             Array arr;
@@ -97,17 +95,6 @@ namespace AtomJson
              *
              */
             SubValue() { std::memset(this, 0, sizeof(SubValue)); }
-
-            /**
-             * @brief Construct a new SubValue object by copying a Boolen object
-             *
-             * @param b
-             */
-            SubValue(const Boolen &b)
-            {
-                std::memset(this, 0, sizeof(SubValue));
-                boolen = b;
-            }
 
             /**
              * @brief Construct a new Sub Value object by copying a Number object
@@ -226,10 +213,15 @@ namespace AtomJson
         /**
          * @brief Construct a new Value object
          *
-         * @param t
          * @param b
          */
-        Value(const Boolen &b, Type t) : type(Type::BOOLEN), val(b) {}
+        Value(const bool &b)
+        {
+            if (b)
+                type = Type::TRUE;
+            else
+                type = Type::FALSE;
+        }
 
         /**
          * @brief Construct a new Value object
@@ -404,20 +396,27 @@ namespace AtomJson
          */
         bool isBoolen() const
         {
-            return type == Type::BOOLEN;
+            return type == Type::TRUE || type == Type::FALSE;
         }
 
-        /***/
+        /**
+         * @brief
+         *
+         * @return bool
+         */
         bool isTrue() const
         {
-            assert(type == Type::BOOLEN);
-            return val.boolen == true;
+            return type == Type::TRUE;
         }
 
+        /**
+         * @brief
+         *
+         * @return bool
+         */
         bool isFalse() const
         {
-            assert(type == Type::BOOLEN);
-            return val.boolen == false;
+            return type == Type::FALSE;
         }
 
         /**
@@ -490,25 +489,17 @@ namespace AtomJson
         void setNull();
 
         /**
-         * @brief Get the Boolen object
-         *
-         * @return Boolen&
-         */
-        const Boolen &getBoolen() const
-        {
-            assert(isBoolen());
-            return val.boolen;
-        }
-
-        /**
          * @brief Set the Boolen object
          *
          * @param b
          */
-        void setBoolen(Boolen b)
+        void setBoolen(const bool &b)
         {
             assert(isBoolen());
-            val.boolen = b;
+            if (b)
+                type = Type::TRUE;
+            else
+                type = Type::FALSE;
         }
 
         /**
@@ -527,7 +518,7 @@ namespace AtomJson
          *
          * @param n
          */
-        void setNumber(Number n)
+        void setNumber(const Number &n)
         {
             assert(isNumber());
             val.num = n;

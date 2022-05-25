@@ -9,7 +9,8 @@ namespace AtomJson
         type = t;
         switch (type)
         {
-        case BOOLEN:
+        case TRUE:
+        case FALSE:
         case NUMBER:
             std::memcpy(&val, &v, sizeof(SubValue));
             break;
@@ -33,9 +34,6 @@ namespace AtomJson
         type = other.type;
         switch (type)
         {
-        case BOOLEN:
-            val.boolen = other.val.boolen;
-            break;
         case NUMBER:
             val.num = other.val.num;
             break;
@@ -58,9 +56,6 @@ namespace AtomJson
         type = other.type;
         switch (type)
         {
-        case BOOLEN:
-            val.boolen = other.val.boolen;
-            break;
         case NUMBER:
             val.num = other.val.num;
             break;
@@ -88,9 +83,6 @@ namespace AtomJson
         type = other.type;
         switch (type)
         {
-        case BOOLEN:
-            val.boolen = other.val.boolen;
-            break;
         case NUMBER:
             val.num = other.val.num;
             break;
@@ -116,9 +108,6 @@ namespace AtomJson
         type = other.type;
         switch (type)
         {
-        case BOOLEN:
-            val.boolen = other.val.boolen;
-            break;
         case NUMBER:
             val.num = other.val.num;
             break;
@@ -146,8 +135,8 @@ namespace AtomJson
     {
         switch (type)
         {
-        case BOOLEN:
         case NUMBER:
+            val.num.~Number();
             break;
         case STRING:
             val.str.~String();
@@ -167,8 +156,8 @@ namespace AtomJson
     {
         switch (type)
         {
-        case BOOLEN:
         case NUMBER:
+            val.num.~Number();
             break;
         case STRING:
             val.str.~String();
@@ -209,8 +198,6 @@ namespace AtomJson
         {
             switch (type)
             {
-            case Type::BOOLEN:
-                return val.boolen == other.val.boolen;
             case Type::NUMBER:
                 return val.num == other.val.num;
             case Type::STRING:
@@ -230,11 +217,11 @@ namespace AtomJson
     {
         switch (v.type)
         {
-        case Type::BOOLEN:
-            if (v.val.boolen)
-                out << "true";
-            else
-                out << "false";
+        case Type::TRUE:
+            out << "true";
+            break;
+        case Type::FALSE:
+            out << "false";
             break;
         case Type::NUMBER:
             out << v.val.num;
@@ -249,6 +236,7 @@ namespace AtomJson
             out << stringify(v, false);
             break;
         default:
+            out << "null";
             break;
         }
         return out;
@@ -338,16 +326,14 @@ namespace AtomJson
             if (c->jsonstr[1] != 'r' || c->jsonstr[2] != 'u' || c->jsonstr[3] != 'e')
                 return ParseRes::PARSE_INVALID_VALUE;
             c->jsonstr += 4;
-            this->type = Type::BOOLEN;
-            this->val.boolen = true;
+            this->type = Type::TRUE;
         }
         else if (c->jsonstr[0] == 'f')
         {
             if (c->jsonstr[1] != 'a' || c->jsonstr[2] != 'l' || c->jsonstr[3] != 's' || c->jsonstr[4] != 'e')
                 return ParseRes::PARSE_INVALID_VALUE;
             c->jsonstr += 5;
-            this->type = Type::BOOLEN;
-            this->val.boolen = false;
+            this->type = Type::FALSE;
         }
         else
             return ParseRes::PARSE_INVALID_VALUE;
@@ -588,7 +574,8 @@ namespace AtomJson
     {
         switch (this->type)
         {
-        case Type::BOOLEN:
+        case Type::TRUE:
+        case Type::FALSE:
             return stringify_boolen(p);
         case Type::NUMBER:
             return stringify_number(p);
@@ -618,7 +605,7 @@ namespace AtomJson
 
     String Value::stringify_boolen(StringifyParam *p) const
     {
-        assert(this->type == Type::BOOLEN);
+        assert(isBoolen());
         String b;
         if (p->prettify)
         {

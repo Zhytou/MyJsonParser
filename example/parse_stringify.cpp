@@ -1,9 +1,11 @@
-#include "AtomJson.hpp"
+#include "../AtomJson.hpp"
+#include <sstream>
 
 using namespace ajson;
 
 int main()
 {
+
     Json json;
     Object o, o1;
 
@@ -16,8 +18,8 @@ int main()
     o1["phone number"] = "xxx - xxxx - xxxx";
     o["parent"] = o1;
 
-    std::cout << stringify(json) << '\n'
-              << stringify(o) << std::endl;
+    std::cout << stringify(json) << '\n';
+    //<< stringify(o) << std::endl;
 
     Array keys = o.keys();
     for (size_t i = 0; i < keys.length(); i++)
@@ -32,14 +34,22 @@ int main()
 
     json = parse("[1,2,3,1.0,2.5,4.8]");
     String str = "[1,2,3,1.0,2.5,4.8]";
-    std::cout << json << '\n'
+    std::cout << stringify(json, false) << '\n'
               << str << '\n';
 
     json = parse("[]");
     std::cout << "isArray() " << json.isArray() << "\nthe array is " << json << '\n';
 
+    json = parse("[true, false]");
+    std::cout << "isArray() " << json.isArray() << "\nthe array is " << json << '\n';
+    std::cout << "stringify without prettify " << stringify(json, false) << '\n';
+
     json = parse("{}");
     std::cout << "isObject() " << json.isArray() << "\nthe object is " << json;
+
+    json = parse("\"\\\" \\\\ \\/ \\b \\f \\n \\r \\t\"");
+    str = stringify(json);
+    std::cout << "string keep escape character is " << str << '\n';
 
     std::cout
         << std::endl;
