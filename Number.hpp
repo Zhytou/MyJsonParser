@@ -43,6 +43,12 @@ namespace AtomJson
                 this->ul = ull;
             }
 
+            SubNum(const float &ff)
+            {
+                std::memset(this, 0, sizeof(SubNum));
+                this->d = ff;
+            }
+
             SubNum(const double &dd)
             {
                 std::memset(this, 0, sizeof(SubNum));
@@ -62,7 +68,7 @@ namespace AtomJson
 
             SubNum &operator=(SubNum &&other) = delete;
 
-            ~SubNum() {}
+            ~SubNum() { std::memset(this, 0, sizeof(SubNum)); }
         };
 
         enum NumberType
@@ -113,7 +119,7 @@ namespace AtomJson
          *
          * @param ff
          */
-        Number(const float &ff) : num(ff), ntype(NumberType::INTEGER) {}
+        Number(const float &ff) : num(ff), ntype(NumberType::FLOATPOINT) {}
 
         /**
          * @brief Construct a new Number object
@@ -156,7 +162,7 @@ namespace AtomJson
          * @brief Destroy the Number object
          *
          */
-        ~Number() {}
+        ~Number() { ntype = NumberType::_NULL; }
 
         /**
          * @brief Check if the Number objects are the same

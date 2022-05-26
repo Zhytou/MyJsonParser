@@ -73,6 +73,9 @@ namespace AtomJson
         case Number::NumberType::INTEGER:
             out << number.num.l;
             break;
+        case Number::NumberType::UNSIGNED:
+            out << number.num.ul;
+            break;
         case Number::NumberType::FLOATPOINT:
             out << number.num.d;
             break;

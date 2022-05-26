@@ -290,6 +290,14 @@ namespace AtomJson
         /**
          * @brief Construct a new Value object
          *
+         * @param s
+         * @param t
+         */
+        Value(const std::string &s, Type t = Type::STRING) : type(t), val(std::move(String(s))) {}
+
+        /**
+         * @brief Construct a new Value object
+         *
          * @param t
          * @param s
          */
@@ -495,7 +503,7 @@ namespace AtomJson
          */
         void setBoolen(const bool &b)
         {
-            assert(isBoolen());
+            setNull();
             if (b)
                 type = Type::TRUE;
             else
@@ -518,9 +526,10 @@ namespace AtomJson
          *
          * @param n
          */
-        void setNumber(const Number &n)
+        void setNumber(const Number &n = Number(0))
         {
-            assert(isNumber());
+            setNull();
+            type = Type::NUMBER;
             val.num = n;
         }
 
@@ -540,9 +549,10 @@ namespace AtomJson
          *
          * @param s
          */
-        void setString(const String &s)
+        void setString(const String &s = String())
         {
-            assert(isString());
+            setNull();
+            type = Type::STRING;
             val.str = s;
         }
 
@@ -558,6 +568,18 @@ namespace AtomJson
         }
 
         /**
+         * @brief Set the Array object
+         *
+         * @param a
+         */
+        void setArray(const Array &a = Array())
+        {
+            setNull();
+            type = Type::ARRAY;
+            val.arr = a;
+        }
+
+        /**
          * @brief Get the Object object
          *
          * @return const Object&
@@ -566,6 +588,18 @@ namespace AtomJson
         {
             assert(isObject());
             return val.obj;
+        }
+
+        /**
+         * @brief Set the Object object
+         *
+         * @param o
+         */
+        void setObject(const Object &o = Object())
+        {
+            setNull();
+            type = Type::OBJECT;
+            val.obj = o;
         }
 
         /**
