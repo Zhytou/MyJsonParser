@@ -18,5 +18,6 @@ int main()
 
     // 4. Output the str
     std::cout << str << std::endl;
+
     return 0;
 }

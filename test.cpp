@@ -87,8 +87,10 @@ TEST(JsonParse, HandleArray)
     TEST_PARSE_ARRAY("[\"hello\",\"world\"]", a);
 
     Array a1;
+    a1.append(1);
+    a1.append(2);
     a.append(a1);
-    // TEST_PARSE_ARRAY("[\"hello\",\"world\",[1,2]]", a);
+    TEST_PARSE_ARRAY("[\"hello\",\"world\",[1,2]]", a);
 }
 
 #define TEST_PARSE_OBJECT(jsonstr, expected)             \
@@ -185,7 +187,7 @@ TEST(JsonStringify, HandleArray)
     String str;
     TEST_STRINGIFY_ARRAY("[]", "[]");
     TEST_STRINGIFY_ARRAY("[true,false]", "[true,false]");
-    TEST_STRINGIFY_ARRAY("[1,2,3,1.0,2.5,4.8]", "[1,2,3,1.0,2.5,4.8]");
+    TEST_STRINGIFY_ARRAY("[1,2,3,1.01,2.50,4.89]", "[1,2,3,1.01,2.50,4.89]");
     TEST_STRINGIFY_ARRAY("[\"\", \"this\", \"is\", \"a\", \"string\"]", "[\"\",\"this\",\"is\",\"a\",\"string\"]");
     TEST_STRINGIFY_ARRAY("[1,2,3,[true,false]]", "[1,2,3,[true,false]]");
 }
