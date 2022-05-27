@@ -1,6 +1,7 @@
 #ifndef ATOMJSON_STRING_HPP
 #define ATOMJSON_STRING_HPP
 
+#include <assert.h>
 #include <iostream>
 #include <string>
 #include <functional>
@@ -178,6 +179,16 @@ namespace AtomJson
          * @return String&
          */
         String &append(const String &other, size_t pos = 0, size_t len = 1);
+
+        /**
+         * @brief Pop out the last char in String
+         *
+         */
+        void pop()
+        {
+            assert(size >= 1);
+            size -= 1;
+        }
 
         /**
          * @brief Get a std::string

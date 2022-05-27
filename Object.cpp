@@ -150,6 +150,7 @@ namespace AtomJson
                 node->prev = nullptr;
                 node->next = nullptr;
 
+                // TODO: check what does this if do?
                 if (prev == next && prev == node && next == node)
                     break;
                 prev->next = next;
@@ -279,6 +280,44 @@ namespace AtomJson
             }
         }
         return std::move(a);
+    }
+
+    void Object::erase(const String &key)
+    {
+        size_t idx = key.hashcode() % capacity;
+        Node *node = nullptr;
+        bool flag = true, exist = false;
+
+        for (node = p[idx]; node != nullptr; node = node->next)
+        {
+            if (!flag && node == p[idx])
+            {
+                node = nullptr;
+                break;
+            }
+
+            flag = false;
+            if (node->item.key == key)
+            {
+                exist = true;
+                // delete the head, if node is the head
+                if (node == p[idx])
+                    p[idx] = deleteDLLNode(node);
+
+                // delete node and later insert it back to list in order to implenment the LRU.
+                Node *prev = node->prev, *next = node->next;
+                node->prev = nullptr;
+                node->next = nullptr;
+
+                prev->next = next;
+                next->prev = prev;
+
+                delete node;
+                node = nullptr;
+                break;
+            }
+        }
+        assert(exist);
     }
 
     void Object::resize()

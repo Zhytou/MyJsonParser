@@ -127,9 +127,9 @@ namespace AtomJson
         /**
          * @brief Pop the element at the tail of Array object
          *
-         * @return Value
+         * @return void
          */
-        Value pop();
+        void pop();
 
     private:
         size_t size, capacity;

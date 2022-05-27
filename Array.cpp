@@ -166,10 +166,10 @@ namespace AtomJson
         return *this;
     }
 
-    Value Array::pop()
+    void Array::pop()
     {
         assert(size >= 1);
+        p[size].~Value();
         size -= 1;
-        return Value(std::move(p[size]));
     }
 } // namespace AtomJson

@@ -187,6 +187,13 @@ namespace AtomJson
          */
         Array values() const;
 
+        /**
+         * @brief Erase the item whose key equals to param key in the Object
+         *
+         * @param key
+         */
+        void erase(const String &key);
+
     private:
         bool need_resize()
         {
