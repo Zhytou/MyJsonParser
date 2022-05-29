@@ -54,8 +54,11 @@ More [examples](https://github.com/Zhytou/MyJsonParser/tree/master/example) are 
 Use the command below.
 
 ``` bash
-cmake --build ./build --config Debug --target test --
-./build/test
+mkdir build
+cd build
+cmake ..
+ninja test
+./test
 ```
 
 The output is presented below.
@@ -113,7 +116,7 @@ The `Number` is an object that can represent unsigned, integer and float point n
 
 #### String
 
-The `String` is an object that represents sequence of characters. 
+The `String` is an object that represents sequence of characters.
 
 #### Array
 
