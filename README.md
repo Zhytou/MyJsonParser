@@ -134,13 +134,45 @@ The AtomJson library defines `Value parse(char*)` to convert JSON literal to Val
 
 The AtomJson library defines `String stringify(const Value&)` to convert Value object to string. The `String stringify(const Value&)` function outputs string without spaces by default. Change the parameter to add indentations(prettification), use scientific notation , change floating point number percision or keep exscape characters in string.
 
+## Structure
+
+```bash
+.
+├── CMakeLists.txt
+├── LICENSE.md
+├── README.md
+├── build
+├── example
+│   ├── CMakeLists.txt
+│   ├── customizedStringify.cpp
+│   ├── simple.cpp
+│   └── value.cpp
+├── src
+│   ├── Array.cpp
+│   ├── AtomJson.cpp
+│   ├── CMakeLists.txt
+│   ├── Number.cpp
+│   ├── Object.cpp
+│   ├── String.cpp
+│   └── include
+│       ├── Array.hpp
+│       ├── AtomJson.hpp
+│       ├── DoublyLinkedList.hpp
+│       ├── Number.hpp
+│       ├── Object.hpp
+│       └── String.hpp
+└── test
+    ├── CMakeLists.txt
+    └── test.cpp
+```
+
 ## Installation
 
 ``` bash
-cd ./your-proj
-mkdir include
-cd ./include
 git clone https://github.com/Zhytou/MyJsonParser.git
+cd src
+# then add your own files
+vim main.cpp
 ```
 
 ## License

@@ -1,6 +1,6 @@
-#include "AtomJson.hpp"
-#include "Object.hpp"
-#include "DoublyLinkedList.hpp"
+#include "include/AtomJson.hpp"
+#include "include/Object.hpp"
+#include "include/DoublyLinkedList.hpp"
 
 #define INITIAL_CAPACITY 16
 

@@ -1,4 +1,4 @@
-#include "../AtomJson.hpp"
+#include "AtomJson.hpp"
 
 using namespace ajson;
 

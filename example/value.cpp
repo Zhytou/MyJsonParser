@@ -1,4 +1,4 @@
-#include "../AtomJson.hpp"
+#include "AtomJson.hpp"
 
 // AtomJson namespace nikename ajson
 using namespace ajson;

@@ -1,24 +1,25 @@
 ﻿cmake_minimum_required(VERSION 3.14)
-
-project ("MyJsonParser - AtomJson")
-
 set(CMAKE_CXX_STANDARD 11)
 
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip
-)
+project(MyJsonParser:AtomJson
+        VERSION 2019.1
+        DESCRIPTION "My Simple JSON Parser @https://github.com/Zhytou/MyJsonParser"
+        LANGUAGES C CXX
+        )
 
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
+#Gtest
+configure_file("${PROJECT_SOURCE_DIR}/thirdparties/gtest_CMakeLists.txt.in" googletest-download/CMakeLists.txt)
+execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/googletest-download")
+execute_process(COMMAND "${CMAKE_COMMAND}" --build .
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/googletest-download")
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)  # don't override our compiler/linker options when building gtest
+add_subdirectory("${CMAKE_BINARY_DIR}/googletest-src" "${CMAKE_BINARY_DIR}/googletest-build")
 
-add_library(atomjson Number.cpp String.cpp Array.cpp Object.cpp AtomJson.cpp)
+# includes
+include_directories(${PROJECT_SOURCE_DIR}/src/include)
 
-add_subdirectory(example)
-
-add_executable(test test.cpp)
-target_link_libraries(test gtest_main atomjson pthread)
-
-include(GoogleTest)
-gtest_discover_tests(test)
+# subdirectories
+add_subdirectory(${PROJECT_SOURCE_DIR}/example)
+add_subdirectory(${PROJECT_SOURCE_DIR}/src)
+add_subdirectory(${PROJECT_SOURCE_DIR}/test)

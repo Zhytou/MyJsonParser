@@ -1,0 +1,1 @@
+add_library(atomjson Number.cpp String.cpp Array.cpp Object.cpp AtomJson.cpp)

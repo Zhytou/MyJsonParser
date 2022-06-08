@@ -1,5 +1,5 @@
-#include "AtomJson.hpp"
-#include "Array.hpp"
+#include "include/AtomJson.hpp"
+#include "include/Array.hpp"
 
 namespace AtomJson
 {
